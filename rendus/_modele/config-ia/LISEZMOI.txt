@@ -1,0 +1,1 @@
+Copier ici les fichiers de configuration de vos outils IA, expurgés de toute clé, jeton ou mot de passe.

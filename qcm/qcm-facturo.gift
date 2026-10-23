@@ -1,0 +1,547 @@
+// QCM Facturo — de Spring Boot à Grails 3.3 — généré depuis qcm-facturo.json, ne pas éditer à la main
+
+$CATEGORY: $course$/Facturo/Module 0 — Structure
+
+::Q1::[markdown]Quel fichier joue le rôle d'un `CommandLineRunner` pour insérer des données au démarrage ? {
+	~`Application.groovy`
+	=`BootStrap.groovy`
+	~`UrlMappings.groovy`
+	~`application.yml`
+	####`BootStrap.init` s'exécute au démarrage, par environnement.
+}
+
+::Q2::[markdown]Pourquoi Facturo impose-t-il `dbCreate\: none` ? {
+	~Pour accélérer le démarrage
+	=Parce qu'Hibernate recréerait le schéma et perdrait vues, fonctions et procédures
+	~Parce que MariaDB n'accepte pas d'autre valeur
+	~Pour désactiver le cache de second niveau
+	####Hibernate ne gère que les tables qu'il connaît ; vues et routines seraient perdues.
+}
+
+::Q3::[markdown]Où place-t-on un service métier ? {
+	~`src/main/groovy`, annoté `@Service` de Spring
+	=`grails-app/services/facturo/XxxService.groovy`
+	~`grails-app/conf`
+	~`grails-app/init`
+	####Le répertoire et le suffixe `Service` font le bean.
+}
+
+::Q4::[markdown]Que provoque le renommage de `ClientController` en `ClientsController` ? {
+	~Rien, seule la classe change
+	=Les URL deviennent `/clients/...` et les vues sont cherchées dans `views/clients`
+	~Seul le nom du bean Spring change
+	~Une erreur de compilation
+	####Le nom logique du contrôleur dérive du nom de classe.
+}
+
+::Q5::[markdown]Quelle version de Java utiliser avec Grails 3.3 ? {
+	=Java 8
+	~Java 17
+	~Java 21
+	~N'importe laquelle
+	####Grails 3.3 vise Java 8.
+}
+
+$CATEGORY: $course$/Facturo/Module 1 — Lister
+
+::Q6::[markdown]`Client.findAllByActif(true)` est \: {
+	~Une méthode à déclarer dans une interface repository
+	=Un *dynamic finder* déduit de son nom à l'exécution
+	~Une requête SQL native
+	~Une méthode à écrire dans la classe `Client`
+	####GORM interprète le nom de méthode, aucune déclaration n'est nécessaire.
+}
+
+::Q7::[markdown]Une action renvoie `[clients\: liste]` sans appeler `render`. Que se passe-t-il ? {
+	~Une erreur \: aucune vue n'est indiquée
+	=La vue `views/<contrôleur>/<action>.gsp` est rendue avec le modèle `clients`
+	~La liste est renvoyée en JSON
+	~Une redirection vers `index`
+	####Une `Map` renvoyée devient le modèle de la vue par convention.
+}
+
+::Q8::[markdown]Avec la configuration par défaut de Grails 3, `$\{c.raisonSociale\}` dans une GSP est \: {
+	~Affiché sans échappement
+	=Échappé en HTML, comme `th\:text`
+	~Échappé en JavaScript
+	~Échappé selon le navigateur
+	####`grails.views.gsp.codecs.expression\: html` par défaut.
+}
+
+::Q9::[markdown]Comment une page choisit-elle son layout SiteMesh ? {
+	~Par une annotation sur le contrôleur
+	=Par `<meta name\="layout" content\="main"/>` dans son `<head>`
+	~Le layout doit porter le même nom que la page
+	~Uniquement dans `application.yml`
+	####La balise `meta` est lue par SiteMesh.
+}
+
+::Q10::[markdown]Une propriété `Date dateCreated` dans une domain class \: {
+	~Doit être renseignée par le contrôleur
+	=Est remplie automatiquement par GORM à l'insertion
+	~N'est jamais persistée
+	~Provoque une erreur de mapping
+	####`dateCreated` et `lastUpdated` sont gérés par l'autoTimestamp.
+}
+
+$CATEGORY: $course$/Facturo/Module 2 — Valider
+
+::Q11::[markdown]Quel est l'équivalent Grails de `BindingResult` ? {
+	=La propriété `errors` de l'objet lié
+	~`params`
+	~`flash`
+	~`request.errors`
+	####Les erreurs sont attachées à l'objet validé.
+}
+
+::Q12::[markdown]`client.save()` est appelé sans option sur un client invalide \: {
+	~Une `ValidationException` est levée
+	=La méthode renvoie `null` et rien n'est enregistré
+	~Le client est enregistré malgré tout
+	~Toute la transaction est annulée
+	####`save()` renvoie `null` ; seul `failOnError\: true` ou un Data Service lève une exception.
+}
+
+::Q13::[markdown]Quel code de message personnalise l'erreur d'unicité du `code` d'un `Client` ? {
+	=`client.code.unique`
+	~`Client.unique.code`
+	~`unique.client.code`
+	~`validation.unique`
+	####Convention `<classe>.<propriété>.<contrainte>`.
+}
+
+::Q14::[markdown]Comment empêcher qu'un paramètre HTTP modifie la propriété `statut` lors de la liaison ? {
+	=`statut bindable\: false` dans `constraints`
+	~Déclarer `statut` dans `transients`
+	~`statut nullable\: false`
+	~Annoter `@JsonIgnore`
+	####`bindable\: false` exclut la propriété de la liaison.
+}
+
+::Q15::[markdown]L'action `def update(Client client)` reçoit `params.id \= 5`. Grails \: {
+	~Crée un nouveau client
+	=Charge le client 5 puis lui applique les paramètres
+	~Charge le client 5 sans appliquer les paramètres
+	~Lève une erreur \: l'id doit être un argument séparé
+	####Avec un `id`, l'instance est chargée avant la liaison.
+}
+
+$CATEGORY: $course$/Facturo/Module 3 — Relations et services
+
+::Q16::[markdown]Pourquoi ne pas déclarer `belongsTo \= [client\: Client]` dans `Facture` ? {
+	=Supprimer un client supprimerait ses factures
+	~Cela dégrade les performances
+	~GORM l'interdit sur une clé étrangère
+	~Cela empêche le chargement lazy
+	####`belongsTo` propage la suppression du propriétaire.
+}
+
+::Q17::[markdown]Quelle annotation transactionnelle utiliser dans un service Grails 3.3 ? {
+	~`org.springframework.transaction.annotation.Transactional`
+	=`grails.gorm.transactions.Transactional`
+	~`javax.transaction.Transactional`
+	~Aucune, tout service est transactionnel
+	####L'annotation GORM 6 gère la session et la transaction GORM.
+}
+
+::Q18::[markdown]Une méthode `@Transactional` lève une exception qui étend `Exception` (et non `RuntimeException`) \: {
+	~La transaction est annulée
+	=La transaction est validée
+	~Groovy refuse de compiler
+	~Le comportement est aléatoire
+	####Comme Spring \: rollback sur `RuntimeException` et `Error` seulement.
+}
+
+::Q19::[markdown]Comment inclure le template `views/facture/_ligne.gsp` ? {
+	=`<g\:render template\="ligne" .../>`
+	~`<g\:include page\="_ligne"/>`
+	~`<g\:render template\="_ligne.gsp"/>`
+	~`<g\:template name\="ligne"/>`
+	####Le souligné et l'extension sont implicites.
+}
+
+::Q20::[markdown]Quelle option évite le N+1 en affichant les lignes d'une facture ? {
+	=`fetch\: [lignes\: 'join']` à la requête
+	~`lazy\: true` sur `lignes`
+	~`cache\: true` sur `Facture`
+	~`sort\: 'id'` sur `lignes`
+	####Jointure dans la même requête.
+}
+
+$CATEGORY: $course$/Facturo/Module 4 — Rechercher
+
+::Q21::[markdown]Que renvoie `Facture.where \{ statut \=\= st \}` ? {
+	~Une `List<Facture>`
+	=Un `DetachedCriteria` pas encore exécuté
+	~La première facture trouvée
+	~Une chaîne SQL
+	####La requête n'est exécutée qu'à `list()`, `get()`, `count()`.
+}
+
+::Q22::[markdown]Quels paramètres GORM pilotent la pagination ? {
+	~`page` et `size`
+	=`max` et `offset`
+	~`limit` et `skip`
+	~`from` et `to`
+	####`max` et `offset`, compris par `list()` et `g\:paginate`.
+}
+
+::Q23::[markdown]Quel tag génère les liens de pagination ? {
+	=`g\:paginate`
+	~`g\:pager`
+	~`g\:pages`
+	~`g\:each`
+	####`g\:paginate total\="..."`.
+}
+
+::Q24::[markdown]Pourquoi borner `params.max` dans le contrôleur ? {
+	=Pour qu'un utilisateur ne puisse pas demander des centaines de milliers de lignes
+	~GORM l'exige
+	~Pour activer le tri
+	~Pour que `g\:paginate` fonctionne
+	####Protection contre une charge excessive.
+}
+
+::Q25::[markdown]Où déclare-t-on l'URL `/factures/recherche` ? {
+	~Par une annotation `@GetMapping` sur l'action
+	=Dans `UrlMappings.groovy`
+	~Dans `application.yml`
+	~Dans le layout
+	####Le routage est centralisé dans `UrlMappings`.
+}
+
+$CATEGORY: $course$/Facturo/Séance 5.1 — Du Java au SQL ensembliste
+
+::Q26::[markdown]Une boucle `for` qui additionne les montants des lignes de chaque facture se traduit en SQL par \: {
+	~Un curseur qui parcourt les lignes
+	~Une procédure qui boucle sur les factures
+	=`SUM(...)` avec `GROUP BY facture_id`
+	~Un trigger `AFTER INSERT` sur les lignes
+	####Accumulateur \= agrégat ; une ligne de résultat par facture.
+}
+
+::Q27::[markdown]Garder seulement les factures dont le total dépasse 1 000 €, une fois les totaux calculés, s'écrit avec \: {
+	~`WHERE`
+	=`HAVING`
+	~`ORDER BY`
+	~`LIMIT`
+	####`HAVING` filtre les groupes après agrégation, `WHERE` les lignes avant.
+}
+
+::Q28::[markdown]En Java, afficher le total de 50 factures (lignes lazy, total calculé par une boucle par facture) coûte typiquement \: {
+	~1 requête
+	~2 requêtes
+	~50 requêtes
+	=Au moins 101 requêtes
+	####1 requête pour la liste + 2 par facture (facture, lignes).
+}
+
+::Q29::[markdown]Lequel de ces besoins reste en Groovy ? {
+	=Envoyer un e-mail au client quand sa facture est émise
+	~Additionner les lignes d'une facture
+	~Numéroter les factures sans trou
+	~Interdire un stock négatif
+	####Un effet extérieur à la base reste en Groovy.
+}
+
+::Q30::[markdown]L'équivalent SQL de `stream().anyMatch(...)` est \: {
+	~`UNION ALL`
+	=`EXISTS`
+	~`GROUP BY`
+	~`COALESCE`
+	####`EXISTS` s'arrête à la première ligne trouvée.
+}
+
+$CATEGORY: $course$/Facturo/Séance 5.2 — Fonctions
+
+::Q31::[markdown]`f_montant_ligne_ht` ne dépend que de ses paramètres. Quelle caractéristique déclarer ? {
+	~`READS SQL DATA`
+	~`MODIFIES SQL DATA`
+	=`DETERMINISTIC`
+	~`NOT DETERMINISTIC`
+	####Calcul pur sur ses paramètres.
+}
+
+::Q32::[markdown]`SELECT id, f_total_facture_ttc(id) FROM facture` sur 1 000 factures \: {
+	=Lance 1 000 sous-requêtes \: c'est un N+1 déplacé dans la base
+	~Lit les lignes une seule fois
+	~Est refusé par MariaDB
+	~Est mis en cache automatiquement
+	####Fonction qui lit des tables appelée une fois par ligne.
+}
+
+::Q33::[markdown]Quel type SQL pour un montant en euros ? {
+	~`FLOAT`
+	~`DOUBLE`
+	~`VARCHAR(20)`
+	=`DECIMAL(12,2)`
+	####Valeur exacte, mappée en `BigDecimal`.
+}
+
+::Q34::[markdown]Le filtre `WHERE f_montant_ligne_ht(quantite, prix_unitaire_ht, remise_pct) > 100` \: {
+	~Accélère la requête
+	=Empêche d'utiliser un index sur ces colonnes
+	~Est interdit dans un `WHERE`
+	~Est réécrit en jointure par MariaDB
+	####L'expression masque la colonne à l'optimiseur.
+}
+
+::Q35::[markdown]Comment exposer le résultat d'une fonction SQL comme propriété en lecture d'une domain class ? {
+	~`transients`
+	~`hasOne`
+	=`formula` dans `mapping`
+	~`embedded`
+	####`formula` \= expression SQL en lecture seule.
+}
+
+$CATEGORY: $course$/Facturo/Séance 5.3 — Vues
+
+::Q36::[markdown]Une vue est \: {
+	~Une copie des données rafraîchie chaque nuit
+	=Une requête `SELECT` nommée, recalculée à chaque lecture
+	~Une table temporaire de session
+	~Un index
+	####Requête nommée, aucune donnée stockée.
+}
+
+::Q37::[markdown]Quelle exigence GORM porte sur la colonne mappée en `id` d'une vue ? {
+	~Elle doit être `AUTO_INCREMENT`
+	~Elle doit être `nullable`
+	~Elle doit être une clé étrangère
+	=Elle doit être unique pour chaque ligne de la vue
+	####Hibernate identifie chaque objet par son `id`.
+}
+
+::Q38::[markdown]On ajoute une colonne à `t` après `CREATE VIEW v AS SELECT * FROM t` \: {
+	=Elle n'apparaît pas dans `v` tant qu'on ne recrée pas la vue
+	~Elle apparaît automatiquement
+	~La vue devient invalide
+	~La vue est supprimée
+	####`*` est développé à la création de la vue.
+}
+
+::Q39::[markdown]Quand préférer une procédure qui renvoie des lignes à une vue ? {
+	~Pour paginer avec GORM
+	~Pour écrire dans les tables
+	=Quand la lecture exige un paramètre obligatoire ou un contrôle préalable
+	~Toujours, c'est plus rapide
+	####Une vue ne prend pas de paramètre.
+}
+
+::Q40::[markdown]Comment vérifier que le filtre posé sur une vue d'agrégat est appliqué tôt ? {
+	~`SHOW TABLES`
+	=`EXPLAIN`
+	~`DESCRIBE`
+	~`CHECK TABLE`
+	####Le plan montre où le filtre est appliqué.
+}
+
+$CATEGORY: $course$/Facturo/Séance 5.4 — Procédures stockées
+
+::Q41::[markdown]Quel mode déclare un paramètre lu en entrée puis réécrit en sortie ? {
+	~`IN`
+	~`OUT`
+	~`RETURN`
+	=`INOUT`
+	####`INOUT` \: entrée lue, sortie réécrite.
+}
+
+::Q42::[markdown]Avantage de `UPDATE produit JOIN (SELECT produit_id, SUM(quantite) ...)` sur une boucle Java \: {
+	~Plus lisible pour un développeur Java
+	=Un seul ordre, et deux lignes du même produit sont cumulées avant le contrôle
+	~MariaDB l'impose
+	~Hibernate l'exige
+	####Ensembliste \: cumul par produit, un seul ordre.
+}
+
+::Q43::[markdown]Une procédure appelée par un service `@Transactional` doit \: {
+	=Laisser la transaction à l'appelant et signaler ses erreurs par `SIGNAL`
+	~Ouvrir `START TRANSACTION` et finir par `COMMIT`
+	~Renvoyer `OUT p_success` sans jamais lever d'erreur
+	~Faire un `ROLLBACK` silencieux en cas d'erreur
+	####Procédure participante \: la transaction appartient au service.
+}
+
+::Q44::[markdown]Juste après l'appel de `p_emettre_facture`, l'objet `Facture` en session \: {
+	~Est déjà à jour
+	~A été retiré de la session
+	=Est périmé \: il faut `refresh()`
+	~Reste verrouillé après le commit
+	####La session Hibernate ignore ce que la procédure a écrit.
+}
+
+::Q45::[markdown]Où envoyer l'e-mail de confirmation d'émission ? {
+	~Dans la procédure
+	~Dans un trigger `AFTER UPDATE`
+	~Dans la vue
+	=Dans le service Groovy, après l'appel réussi
+	####Effet extérieur \: en Groovy, après le succès.
+}
+
+$CATEGORY: $course$/Facturo/Séance 5.5 — Triggers
+
+::Q46::[markdown]Pour refuser une ligne avant qu'elle soit écrite, on utilise \: {
+	~`AFTER INSERT`
+	=`BEFORE INSERT`
+	~Une vue
+	~Une fonction
+	####`BEFORE` peut refuser par `SIGNAL` avant l'écriture.
+}
+
+::Q47::[markdown]Pour interdire un stock négatif, le meilleur outil est \: {
+	~Un trigger `BEFORE UPDATE`
+	~Un contrôle dans le service seulement
+	=Une contrainte `CHECK (stock >\= 0)`
+	~Une vue filtrée
+	####Déclaratif d'abord \: la règle porte sur la ligne elle-même.
+}
+
+::Q48::[markdown]Les lignes supprimées par un `ON DELETE CASCADE` \: {
+	=Ne déclenchent pas les triggers de la table enfant
+	~Déclenchent les triggers de la table enfant
+	~Font échouer la suppression
+	~Déclenchent les triggers deux fois
+	####Vérifié sur MariaDB 10.11 \: les cascades ne déclenchent pas les triggers.
+}
+
+::Q49::[markdown]Dans un trigger, quelle fonction renvoie le compte SQL connecté (et non le propriétaire du trigger) ? {
+	~`CURRENT_USER()`
+	~`DATABASE()`
+	~`@@hostname`
+	=`USER()`
+	####`CURRENT_USER()` renvoie le propriétaire du trigger.
+}
+
+::Q50::[markdown]Un trigger `BEFORE INSERT` modifie `NEW.prix_unitaire_ht`. L'objet Grails qui vient d'être enregistré \: {
+	~Est mis à jour automatiquement
+	=Garde l'ancienne valeur jusqu'à un `refresh()`
+	~Provoque une erreur
+	~Est retiré de la session
+	####La base a modifié la ligne sans que la session le sache.
+}
+
+$CATEGORY: $course$/Facturo/Séance 5.6 — Composer
+
+::Q51::[markdown]Quelle est la première question de l'arbre de décision ? {
+	~Quel est le volume de données ?
+	~Quelle solution est la plus rapide ?
+	=Le besoin touche-t-il l'extérieur de la base ?
+	~Que préfère l'équipe ?
+	####On écarte d'abord ce qui doit rester en Groovy.
+}
+
+::Q52::[markdown]Liste des factures avec leurs totaux, filtrable et paginée \: {
+	=Vue + domain class en lecture seule
+	~Procédure autonome
+	~Trigger `AFTER UPDATE`
+	~Fonction appelée pour chaque ligne
+	####Lecture calculée réutilisée en liste \: question 4.
+}
+
+::Q53::[markdown]« Une facture émise ne change plus », y compris pour un script de reprise de données \: {
+	~Un intercepteur suffit
+	~Un contrôle dans le service suffit
+	~Une vue
+	=Un trigger `BEFORE`, doublé d'un contrôle dans le service pour le message
+	####Invariant quel que soit l'auteur \: question 2 ; le service donne le message.
+}
+
+::Q54::[markdown]Atelier fidélité \: où décider d'appliquer le bonus, règle commerciale qui change chaque trimestre ? {
+	~Dans un trigger `BEFORE INSERT` sur `ligne_facture`
+	=Dans le service Groovy, à partir d'un chiffre d'affaires calculé en base
+	~Dans la vue des totaux
+	~Dans une procédure autonome lancée la nuit
+	####Décision changeante en Groovy, calcul en base.
+}
+
+::Q55::[markdown]Lequel est un signe d'abus de la base ? {
+	~Une vue d'agrégat lue par GORM
+	~Une fonction d'arrondi partagée
+	=Une procédure de 400 lignes qui mêle règles commerciales, formatage et drapeaux
+	~Un trigger d'audit des statuts
+	####La procédure est devenue un « service caché ».
+}
+
+$CATEGORY: $course$/Facturo/Module 6 — Transverse
+
+::Q56::[markdown]La méthode `before()` d'un intercepteur renvoie `false` \: {
+	=L'action n'est pas exécutée
+	~Un avertissement est journalisé puis l'action s'exécute
+	~Une exception est levée
+	~L'action s'exécute sans vue
+	####`false` interrompt la chaîne.
+}
+
+::Q57::[markdown]Comment un intercepteur Grails est-il enregistré ? {
+	=Automatiquement \: classe `*Interceptor` dans `grails-app/controllers`
+	~Par un `WebMvcConfigurer`
+	~Dans `application.yml`
+	~Obligatoirement dans `resources.groovy`
+	####Convention de nommage et d'emplacement.
+}
+
+::Q58::[markdown]Dans une TagLib, `static namespace \= 'fac'` signifie \: {
+	=Les tags s'écrivent `<fac\:montant .../>`
+	~La classe est dans le package `fac`
+	~Les messages i18n sont préfixés `fac.`
+	~Le fichier doit s'appeler `fac.groovy`
+	####Le préfixe des tags dans les GSP.
+}
+
+::Q59::[markdown]Différence entre `after()` et `afterView()` \: {
+	=`after()` avant le rendu de la vue, `afterView()` après
+	~L'inverse
+	~Aucune
+	~`afterView()` ne s'exécute qu'en cas d'erreur
+	####`after()` peut encore modifier le modèle.
+}
+
+::Q60::[markdown]Par défaut, comment afficher une page Grails en anglais ? {
+	=Ajouter `?lang\=en` à l'URL
+	~Modifier `application.yml` et redémarrer
+	~Configurer un `LocaleChangeInterceptor`
+	~Impossible sans plugin
+	####Le paramètre `lang` est traité par défaut.
+}
+
+$CATEGORY: $course$/Facturo/Pratique Git et IA
+
+::Q61::[markdown]Quel message de commit respecte la convention du dépôt ? {
+	~`fix`
+	=`feat(ex03)\: ajouter le service de commande d'achat`
+	~`modifs du jour`
+	~`WIP final v2`
+	####Format Conventional Commits avec portée `exNN`.
+}
+
+::Q62::[markdown]Exercice de la partie sans IA \: vous avez demandé à un assistant d'expliquer une erreur de compilation. Que faire ? {
+	~Rien, ce n'est pas du code
+	=Le déclarer dans `RENDU.md` \: outil, moment, question posée, ce que vous en avez retenu
+	~Supprimer le commit concerné
+	~Refaire l'exercice
+	####Toute aide IA, même hors code, est déclarée.
+}
+
+::Q63::[markdown]Partie avec IA \: que doit contenir `JOURNAL_IA.md` ? {
+	~Seulement le code généré
+	=Outils et configuration, prompts écrits, ce qui a été accepté, rejeté ou corrigé
+	~Rien si le code fonctionne
+	~Le nom du modèle uniquement
+	####Le journal doit permettre de rejouer et juger la démarche.
+}
+
+::Q64::[markdown]Quel trailer de commit signale un commit assisté par IA dans ce dépôt ? {
+	=`Assisted-by\: <outil>`
+	~`Signed-off-by\: <nom>`
+	~`Reviewed-by\: <outil>`
+	~Un tag Git
+	####Convention du `CONTRIBUTING.md` du dépôt.
+}
+
+::Q65::[markdown]Pourquoi plusieurs commits courts plutôt qu'un seul en fin d'exercice ? {
+	=Historique lisible, revue et retour arrière ciblés, démarche visible
+	~Git limite la taille d'un commit
+	~Chaque commit rapporte des points
+	~Pour éviter les conflits
+	####L'historique documente le raisonnement.
+}

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Vérifie le format des messages de commit. Activation : git config core.hooksPath .githooks
+msg_file="$1"
+subject=$(grep -v '^#' "$msg_file" | sed '/^\s*$/d' | head -n1)
+case "$subject" in Merge*|Revert*|fixup!*|squash!*) exit 0 ;; esac
+re='^(feat|fix|refactor|test|docs|chore|style|perf|build)\((ex0[1-8]|base)\): .{10,72}$'
+if ! [[ "$subject" =~ $re ]]; then
+  echo "Message refusé : « $subject »" >&2
+  echo "Format attendu : <type>(exNN): <description de 10 à 72 caractères>" >&2
+  echo "Exemple        : feat(ex01): mapper la table fournisseur" >&2
+  exit 1
+fi
+if grep -qiE '^Assisted-by:' "$msg_file" && [[ "$subject" =~ \(ex0[1-4]\) ]]; then
+  echo "Attention : trailer Assisted-by sur un exercice de la partie SANS IA (ex01 à ex04)." >&2
+  echo "C'est autorisé si c'est vrai, mais déclarez-le aussi dans votre RENDU.md." >&2
+fi
+exit 0

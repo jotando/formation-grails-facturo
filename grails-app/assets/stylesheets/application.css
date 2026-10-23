@@ -1,0 +1,24 @@
+/*
+* This is a manifest file that'll be compiled into application.css, which will include all the files
+* listed below.
+*
+* Any CSS file within this directory can be referenced here using a relative path.
+*
+* You're free to add application-wide styles to this file and they'll appear at the top of the
+* compiled file, but it's generally better to create a new file per style scope.
+*
+*= require bootstrap
+*= require grails
+*= require main
+*= require mobile
+*= require_self
+*/
+
+/* ---- Facturo ---- */
+.badge-statut { font-size: .75rem; vertical-align: middle; margin-left: .5rem; }
+.statut-brouillon { background: #6c757d; color: #fff; }
+.statut-emise     { background: #0d6efd; color: #fff; }
+.statut-payee     { background: #198754; color: #fff; }
+.statut-annulee   { background: #dc3545; color: #fff; }
+.pagination a, .pagination span { padding: .25rem .6rem; border: 1px solid #dee2e6; margin-right: -1px; }
+.pagination .currentStep { background: #0d6efd; color: #fff; }

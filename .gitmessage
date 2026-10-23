@@ -1,0 +1,15 @@
+# <type>(exNN): <ce que fait le commit, à l'infinitif, 10 à 72 caractères>
+#
+# Pourquoi ce changement ? Quelle décision avez-vous prise, et pourquoi pas une autre ?
+# (obligatoire dès que le commit n'est pas trivial ; lignes de 72 caractères max)
+#
+# Partie AVEC IA (ex05 à ex08) : si le commit contient du code ou du texte produit avec une IA,
+# ajoutez en dernière ligne, après une ligne vide :
+# Assisted-by: <outil> (<modèle>)
+#
+# Types : feat fix refactor test docs chore style perf build
+# Exemple :
+# feat(ex03): ajouter les lignes de commande d'achat
+#
+# La ligne est recopiée depuis le produit pour historiser le prix d'achat ;
+# la suppression passe par removeFromLignes pour profiter de all-delete-orphan.

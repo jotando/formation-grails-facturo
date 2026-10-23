@@ -1,0 +1,25 @@
+# Base MariaDB de Facturo. Les scripts src/main/sql/*.sql sont exécutés par ordre alphabétique
+# à la PREMIÈRE création du volume. Pour rejouer les scripts : ./outils/reinit-db.sh
+services:
+  mariadb:
+    image: mariadb:10.11
+    container_name: facturo-db
+    environment:
+      MARIADB_DATABASE: facturo
+      MARIADB_USER: facturo
+      MARIADB_PASSWORD: facturo
+      MARIADB_ROOT_PASSWORD: root
+      TZ: Europe/Paris
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./src/main/sql:/docker-entrypoint-initdb.d:ro
+      - facturo-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      retries: 20
+
+volumes:
+  facturo-data:

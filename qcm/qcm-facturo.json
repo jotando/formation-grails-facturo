@@ -1,0 +1,1581 @@
+{
+ "titre": "QCM Facturo — de Spring Boot à Grails 3.3",
+ "version": "2026-10-23",
+ "modules": {
+  "0": "Module 0 — Structure",
+  "1": "Module 1 — Lister",
+  "2": "Module 2 — Valider",
+  "3": "Module 3 — Relations et services",
+  "4": "Module 4 — Rechercher",
+  "5.1": "Séance 5.1 — Du Java au SQL ensembliste",
+  "5.2": "Séance 5.2 — Fonctions",
+  "5.3": "Séance 5.3 — Vues",
+  "5.4": "Séance 5.4 — Procédures stockées",
+  "5.5": "Séance 5.5 — Triggers",
+  "5.6": "Séance 5.6 — Composer",
+  "6": "Module 6 — Transverse",
+  "git-ia": "Pratique Git et IA"
+ },
+ "questions": [
+  {
+   "id": "Q1",
+   "module": "0",
+   "question": "Quel fichier joue le rôle d'un `CommandLineRunner` pour insérer des données au démarrage ?",
+   "options": [
+    {
+     "texte": "`Application.groovy`",
+     "correcte": false
+    },
+    {
+     "texte": "`BootStrap.groovy`",
+     "correcte": true
+    },
+    {
+     "texte": "`UrlMappings.groovy`",
+     "correcte": false
+    },
+    {
+     "texte": "`application.yml`",
+     "correcte": false
+    }
+   ],
+   "justification": "`BootStrap.init` s'exécute au démarrage, par environnement."
+  },
+  {
+   "id": "Q2",
+   "module": "0",
+   "question": "Pourquoi Facturo impose-t-il `dbCreate: none` ?",
+   "options": [
+    {
+     "texte": "Pour accélérer le démarrage",
+     "correcte": false
+    },
+    {
+     "texte": "Parce qu'Hibernate recréerait le schéma et perdrait vues, fonctions et procédures",
+     "correcte": true
+    },
+    {
+     "texte": "Parce que MariaDB n'accepte pas d'autre valeur",
+     "correcte": false
+    },
+    {
+     "texte": "Pour désactiver le cache de second niveau",
+     "correcte": false
+    }
+   ],
+   "justification": "Hibernate ne gère que les tables qu'il connaît ; vues et routines seraient perdues."
+  },
+  {
+   "id": "Q3",
+   "module": "0",
+   "question": "Où place-t-on un service métier ?",
+   "options": [
+    {
+     "texte": "`src/main/groovy`, annoté `@Service` de Spring",
+     "correcte": false
+    },
+    {
+     "texte": "`grails-app/services/facturo/XxxService.groovy`",
+     "correcte": true
+    },
+    {
+     "texte": "`grails-app/conf`",
+     "correcte": false
+    },
+    {
+     "texte": "`grails-app/init`",
+     "correcte": false
+    }
+   ],
+   "justification": "Le répertoire et le suffixe `Service` font le bean."
+  },
+  {
+   "id": "Q4",
+   "module": "0",
+   "question": "Que provoque le renommage de `ClientController` en `ClientsController` ?",
+   "options": [
+    {
+     "texte": "Rien, seule la classe change",
+     "correcte": false
+    },
+    {
+     "texte": "Les URL deviennent `/clients/...` et les vues sont cherchées dans `views/clients`",
+     "correcte": true
+    },
+    {
+     "texte": "Seul le nom du bean Spring change",
+     "correcte": false
+    },
+    {
+     "texte": "Une erreur de compilation",
+     "correcte": false
+    }
+   ],
+   "justification": "Le nom logique du contrôleur dérive du nom de classe."
+  },
+  {
+   "id": "Q5",
+   "module": "0",
+   "question": "Quelle version de Java utiliser avec Grails 3.3 ?",
+   "options": [
+    {
+     "texte": "Java 8",
+     "correcte": true
+    },
+    {
+     "texte": "Java 17",
+     "correcte": false
+    },
+    {
+     "texte": "Java 21",
+     "correcte": false
+    },
+    {
+     "texte": "N'importe laquelle",
+     "correcte": false
+    }
+   ],
+   "justification": "Grails 3.3 vise Java 8."
+  },
+  {
+   "id": "Q6",
+   "module": "1",
+   "question": "`Client.findAllByActif(true)` est :",
+   "options": [
+    {
+     "texte": "Une méthode à déclarer dans une interface repository",
+     "correcte": false
+    },
+    {
+     "texte": "Un *dynamic finder* déduit de son nom à l'exécution",
+     "correcte": true
+    },
+    {
+     "texte": "Une requête SQL native",
+     "correcte": false
+    },
+    {
+     "texte": "Une méthode à écrire dans la classe `Client`",
+     "correcte": false
+    }
+   ],
+   "justification": "GORM interprète le nom de méthode, aucune déclaration n'est nécessaire."
+  },
+  {
+   "id": "Q7",
+   "module": "1",
+   "question": "Une action renvoie `[clients: liste]` sans appeler `render`. Que se passe-t-il ?",
+   "options": [
+    {
+     "texte": "Une erreur : aucune vue n'est indiquée",
+     "correcte": false
+    },
+    {
+     "texte": "La vue `views/<contrôleur>/<action>.gsp` est rendue avec le modèle `clients`",
+     "correcte": true
+    },
+    {
+     "texte": "La liste est renvoyée en JSON",
+     "correcte": false
+    },
+    {
+     "texte": "Une redirection vers `index`",
+     "correcte": false
+    }
+   ],
+   "justification": "Une `Map` renvoyée devient le modèle de la vue par convention."
+  },
+  {
+   "id": "Q8",
+   "module": "1",
+   "question": "Avec la configuration par défaut de Grails 3, `${c.raisonSociale}` dans une GSP est :",
+   "options": [
+    {
+     "texte": "Affiché sans échappement",
+     "correcte": false
+    },
+    {
+     "texte": "Échappé en HTML, comme `th:text`",
+     "correcte": true
+    },
+    {
+     "texte": "Échappé en JavaScript",
+     "correcte": false
+    },
+    {
+     "texte": "Échappé selon le navigateur",
+     "correcte": false
+    }
+   ],
+   "justification": "`grails.views.gsp.codecs.expression: html` par défaut."
+  },
+  {
+   "id": "Q9",
+   "module": "1",
+   "question": "Comment une page choisit-elle son layout SiteMesh ?",
+   "options": [
+    {
+     "texte": "Par une annotation sur le contrôleur",
+     "correcte": false
+    },
+    {
+     "texte": "Par `<meta name=\"layout\" content=\"main\"/>` dans son `<head>`",
+     "correcte": true
+    },
+    {
+     "texte": "Le layout doit porter le même nom que la page",
+     "correcte": false
+    },
+    {
+     "texte": "Uniquement dans `application.yml`",
+     "correcte": false
+    }
+   ],
+   "justification": "La balise `meta` est lue par SiteMesh."
+  },
+  {
+   "id": "Q10",
+   "module": "1",
+   "question": "Une propriété `Date dateCreated` dans une domain class :",
+   "options": [
+    {
+     "texte": "Doit être renseignée par le contrôleur",
+     "correcte": false
+    },
+    {
+     "texte": "Est remplie automatiquement par GORM à l'insertion",
+     "correcte": true
+    },
+    {
+     "texte": "N'est jamais persistée",
+     "correcte": false
+    },
+    {
+     "texte": "Provoque une erreur de mapping",
+     "correcte": false
+    }
+   ],
+   "justification": "`dateCreated` et `lastUpdated` sont gérés par l'autoTimestamp."
+  },
+  {
+   "id": "Q11",
+   "module": "2",
+   "question": "Quel est l'équivalent Grails de `BindingResult` ?",
+   "options": [
+    {
+     "texte": "La propriété `errors` de l'objet lié",
+     "correcte": true
+    },
+    {
+     "texte": "`params`",
+     "correcte": false
+    },
+    {
+     "texte": "`flash`",
+     "correcte": false
+    },
+    {
+     "texte": "`request.errors`",
+     "correcte": false
+    }
+   ],
+   "justification": "Les erreurs sont attachées à l'objet validé."
+  },
+  {
+   "id": "Q12",
+   "module": "2",
+   "question": "`client.save()` est appelé sans option sur un client invalide :",
+   "options": [
+    {
+     "texte": "Une `ValidationException` est levée",
+     "correcte": false
+    },
+    {
+     "texte": "La méthode renvoie `null` et rien n'est enregistré",
+     "correcte": true
+    },
+    {
+     "texte": "Le client est enregistré malgré tout",
+     "correcte": false
+    },
+    {
+     "texte": "Toute la transaction est annulée",
+     "correcte": false
+    }
+   ],
+   "justification": "`save()` renvoie `null` ; seul `failOnError: true` ou un Data Service lève une exception."
+  },
+  {
+   "id": "Q13",
+   "module": "2",
+   "question": "Quel code de message personnalise l'erreur d'unicité du `code` d'un `Client` ?",
+   "options": [
+    {
+     "texte": "`client.code.unique`",
+     "correcte": true
+    },
+    {
+     "texte": "`Client.unique.code`",
+     "correcte": false
+    },
+    {
+     "texte": "`unique.client.code`",
+     "correcte": false
+    },
+    {
+     "texte": "`validation.unique`",
+     "correcte": false
+    }
+   ],
+   "justification": "Convention `<classe>.<propriété>.<contrainte>`."
+  },
+  {
+   "id": "Q14",
+   "module": "2",
+   "question": "Comment empêcher qu'un paramètre HTTP modifie la propriété `statut` lors de la liaison ?",
+   "options": [
+    {
+     "texte": "`statut bindable: false` dans `constraints`",
+     "correcte": true
+    },
+    {
+     "texte": "Déclarer `statut` dans `transients`",
+     "correcte": false
+    },
+    {
+     "texte": "`statut nullable: false`",
+     "correcte": false
+    },
+    {
+     "texte": "Annoter `@JsonIgnore`",
+     "correcte": false
+    }
+   ],
+   "justification": "`bindable: false` exclut la propriété de la liaison."
+  },
+  {
+   "id": "Q15",
+   "module": "2",
+   "question": "L'action `def update(Client client)` reçoit `params.id = 5`. Grails :",
+   "options": [
+    {
+     "texte": "Crée un nouveau client",
+     "correcte": false
+    },
+    {
+     "texte": "Charge le client 5 puis lui applique les paramètres",
+     "correcte": true
+    },
+    {
+     "texte": "Charge le client 5 sans appliquer les paramètres",
+     "correcte": false
+    },
+    {
+     "texte": "Lève une erreur : l'id doit être un argument séparé",
+     "correcte": false
+    }
+   ],
+   "justification": "Avec un `id`, l'instance est chargée avant la liaison."
+  },
+  {
+   "id": "Q16",
+   "module": "3",
+   "question": "Pourquoi ne pas déclarer `belongsTo = [client: Client]` dans `Facture` ?",
+   "options": [
+    {
+     "texte": "Supprimer un client supprimerait ses factures",
+     "correcte": true
+    },
+    {
+     "texte": "Cela dégrade les performances",
+     "correcte": false
+    },
+    {
+     "texte": "GORM l'interdit sur une clé étrangère",
+     "correcte": false
+    },
+    {
+     "texte": "Cela empêche le chargement lazy",
+     "correcte": false
+    }
+   ],
+   "justification": "`belongsTo` propage la suppression du propriétaire."
+  },
+  {
+   "id": "Q17",
+   "module": "3",
+   "question": "Quelle annotation transactionnelle utiliser dans un service Grails 3.3 ?",
+   "options": [
+    {
+     "texte": "`org.springframework.transaction.annotation.Transactional`",
+     "correcte": false
+    },
+    {
+     "texte": "`grails.gorm.transactions.Transactional`",
+     "correcte": true
+    },
+    {
+     "texte": "`javax.transaction.Transactional`",
+     "correcte": false
+    },
+    {
+     "texte": "Aucune, tout service est transactionnel",
+     "correcte": false
+    }
+   ],
+   "justification": "L'annotation GORM 6 gère la session et la transaction GORM."
+  },
+  {
+   "id": "Q18",
+   "module": "3",
+   "question": "Une méthode `@Transactional` lève une exception qui étend `Exception` (et non `RuntimeException`) :",
+   "options": [
+    {
+     "texte": "La transaction est annulée",
+     "correcte": false
+    },
+    {
+     "texte": "La transaction est validée",
+     "correcte": true
+    },
+    {
+     "texte": "Groovy refuse de compiler",
+     "correcte": false
+    },
+    {
+     "texte": "Le comportement est aléatoire",
+     "correcte": false
+    }
+   ],
+   "justification": "Comme Spring : rollback sur `RuntimeException` et `Error` seulement."
+  },
+  {
+   "id": "Q19",
+   "module": "3",
+   "question": "Comment inclure le template `views/facture/_ligne.gsp` ?",
+   "options": [
+    {
+     "texte": "`<g:render template=\"ligne\" .../>`",
+     "correcte": true
+    },
+    {
+     "texte": "`<g:include page=\"_ligne\"/>`",
+     "correcte": false
+    },
+    {
+     "texte": "`<g:render template=\"_ligne.gsp\"/>`",
+     "correcte": false
+    },
+    {
+     "texte": "`<g:template name=\"ligne\"/>`",
+     "correcte": false
+    }
+   ],
+   "justification": "Le souligné et l'extension sont implicites."
+  },
+  {
+   "id": "Q20",
+   "module": "3",
+   "question": "Quelle option évite le N+1 en affichant les lignes d'une facture ?",
+   "options": [
+    {
+     "texte": "`fetch: [lignes: 'join']` à la requête",
+     "correcte": true
+    },
+    {
+     "texte": "`lazy: true` sur `lignes`",
+     "correcte": false
+    },
+    {
+     "texte": "`cache: true` sur `Facture`",
+     "correcte": false
+    },
+    {
+     "texte": "`sort: 'id'` sur `lignes`",
+     "correcte": false
+    }
+   ],
+   "justification": "Jointure dans la même requête."
+  },
+  {
+   "id": "Q21",
+   "module": "4",
+   "question": "Que renvoie `Facture.where { statut == st }` ?",
+   "options": [
+    {
+     "texte": "Une `List<Facture>`",
+     "correcte": false
+    },
+    {
+     "texte": "Un `DetachedCriteria` pas encore exécuté",
+     "correcte": true
+    },
+    {
+     "texte": "La première facture trouvée",
+     "correcte": false
+    },
+    {
+     "texte": "Une chaîne SQL",
+     "correcte": false
+    }
+   ],
+   "justification": "La requête n'est exécutée qu'à `list()`, `get()`, `count()`."
+  },
+  {
+   "id": "Q22",
+   "module": "4",
+   "question": "Quels paramètres GORM pilotent la pagination ?",
+   "options": [
+    {
+     "texte": "`page` et `size`",
+     "correcte": false
+    },
+    {
+     "texte": "`max` et `offset`",
+     "correcte": true
+    },
+    {
+     "texte": "`limit` et `skip`",
+     "correcte": false
+    },
+    {
+     "texte": "`from` et `to`",
+     "correcte": false
+    }
+   ],
+   "justification": "`max` et `offset`, compris par `list()` et `g:paginate`."
+  },
+  {
+   "id": "Q23",
+   "module": "4",
+   "question": "Quel tag génère les liens de pagination ?",
+   "options": [
+    {
+     "texte": "`g:paginate`",
+     "correcte": true
+    },
+    {
+     "texte": "`g:pager`",
+     "correcte": false
+    },
+    {
+     "texte": "`g:pages`",
+     "correcte": false
+    },
+    {
+     "texte": "`g:each`",
+     "correcte": false
+    }
+   ],
+   "justification": "`g:paginate total=\"...\"`."
+  },
+  {
+   "id": "Q24",
+   "module": "4",
+   "question": "Pourquoi borner `params.max` dans le contrôleur ?",
+   "options": [
+    {
+     "texte": "Pour qu'un utilisateur ne puisse pas demander des centaines de milliers de lignes",
+     "correcte": true
+    },
+    {
+     "texte": "GORM l'exige",
+     "correcte": false
+    },
+    {
+     "texte": "Pour activer le tri",
+     "correcte": false
+    },
+    {
+     "texte": "Pour que `g:paginate` fonctionne",
+     "correcte": false
+    }
+   ],
+   "justification": "Protection contre une charge excessive."
+  },
+  {
+   "id": "Q25",
+   "module": "4",
+   "question": "Où déclare-t-on l'URL `/factures/recherche` ?",
+   "options": [
+    {
+     "texte": "Par une annotation `@GetMapping` sur l'action",
+     "correcte": false
+    },
+    {
+     "texte": "Dans `UrlMappings.groovy`",
+     "correcte": true
+    },
+    {
+     "texte": "Dans `application.yml`",
+     "correcte": false
+    },
+    {
+     "texte": "Dans le layout",
+     "correcte": false
+    }
+   ],
+   "justification": "Le routage est centralisé dans `UrlMappings`."
+  },
+  {
+   "id": "Q26",
+   "module": "5.1",
+   "question": "Une boucle `for` qui additionne les montants des lignes de chaque facture se traduit en SQL par :",
+   "options": [
+    {
+     "texte": "Un curseur qui parcourt les lignes",
+     "correcte": false
+    },
+    {
+     "texte": "Une procédure qui boucle sur les factures",
+     "correcte": false
+    },
+    {
+     "texte": "`SUM(...)` avec `GROUP BY facture_id`",
+     "correcte": true
+    },
+    {
+     "texte": "Un trigger `AFTER INSERT` sur les lignes",
+     "correcte": false
+    }
+   ],
+   "justification": "Accumulateur = agrégat ; une ligne de résultat par facture."
+  },
+  {
+   "id": "Q27",
+   "module": "5.1",
+   "question": "Garder seulement les factures dont le total dépasse 1 000 €, une fois les totaux calculés, s'écrit avec :",
+   "options": [
+    {
+     "texte": "`WHERE`",
+     "correcte": false
+    },
+    {
+     "texte": "`HAVING`",
+     "correcte": true
+    },
+    {
+     "texte": "`ORDER BY`",
+     "correcte": false
+    },
+    {
+     "texte": "`LIMIT`",
+     "correcte": false
+    }
+   ],
+   "justification": "`HAVING` filtre les groupes après agrégation, `WHERE` les lignes avant."
+  },
+  {
+   "id": "Q28",
+   "module": "5.1",
+   "question": "En Java, afficher le total de 50 factures (lignes lazy, total calculé par une boucle par facture) coûte typiquement :",
+   "options": [
+    {
+     "texte": "1 requête",
+     "correcte": false
+    },
+    {
+     "texte": "2 requêtes",
+     "correcte": false
+    },
+    {
+     "texte": "50 requêtes",
+     "correcte": false
+    },
+    {
+     "texte": "Au moins 101 requêtes",
+     "correcte": true
+    }
+   ],
+   "justification": "1 requête pour la liste + 2 par facture (facture, lignes)."
+  },
+  {
+   "id": "Q29",
+   "module": "5.1",
+   "question": "Lequel de ces besoins reste en Groovy ?",
+   "options": [
+    {
+     "texte": "Envoyer un e-mail au client quand sa facture est émise",
+     "correcte": true
+    },
+    {
+     "texte": "Additionner les lignes d'une facture",
+     "correcte": false
+    },
+    {
+     "texte": "Numéroter les factures sans trou",
+     "correcte": false
+    },
+    {
+     "texte": "Interdire un stock négatif",
+     "correcte": false
+    }
+   ],
+   "justification": "Un effet extérieur à la base reste en Groovy."
+  },
+  {
+   "id": "Q30",
+   "module": "5.1",
+   "question": "L'équivalent SQL de `stream().anyMatch(...)` est :",
+   "options": [
+    {
+     "texte": "`UNION ALL`",
+     "correcte": false
+    },
+    {
+     "texte": "`EXISTS`",
+     "correcte": true
+    },
+    {
+     "texte": "`GROUP BY`",
+     "correcte": false
+    },
+    {
+     "texte": "`COALESCE`",
+     "correcte": false
+    }
+   ],
+   "justification": "`EXISTS` s'arrête à la première ligne trouvée."
+  },
+  {
+   "id": "Q31",
+   "module": "5.2",
+   "question": "`f_montant_ligne_ht` ne dépend que de ses paramètres. Quelle caractéristique déclarer ?",
+   "options": [
+    {
+     "texte": "`READS SQL DATA`",
+     "correcte": false
+    },
+    {
+     "texte": "`MODIFIES SQL DATA`",
+     "correcte": false
+    },
+    {
+     "texte": "`DETERMINISTIC`",
+     "correcte": true
+    },
+    {
+     "texte": "`NOT DETERMINISTIC`",
+     "correcte": false
+    }
+   ],
+   "justification": "Calcul pur sur ses paramètres."
+  },
+  {
+   "id": "Q32",
+   "module": "5.2",
+   "question": "`SELECT id, f_total_facture_ttc(id) FROM facture` sur 1 000 factures :",
+   "options": [
+    {
+     "texte": "Lance 1 000 sous-requêtes : c'est un N+1 déplacé dans la base",
+     "correcte": true
+    },
+    {
+     "texte": "Lit les lignes une seule fois",
+     "correcte": false
+    },
+    {
+     "texte": "Est refusé par MariaDB",
+     "correcte": false
+    },
+    {
+     "texte": "Est mis en cache automatiquement",
+     "correcte": false
+    }
+   ],
+   "justification": "Fonction qui lit des tables appelée une fois par ligne."
+  },
+  {
+   "id": "Q33",
+   "module": "5.2",
+   "question": "Quel type SQL pour un montant en euros ?",
+   "options": [
+    {
+     "texte": "`FLOAT`",
+     "correcte": false
+    },
+    {
+     "texte": "`DOUBLE`",
+     "correcte": false
+    },
+    {
+     "texte": "`VARCHAR(20)`",
+     "correcte": false
+    },
+    {
+     "texte": "`DECIMAL(12,2)`",
+     "correcte": true
+    }
+   ],
+   "justification": "Valeur exacte, mappée en `BigDecimal`."
+  },
+  {
+   "id": "Q34",
+   "module": "5.2",
+   "question": "Le filtre `WHERE f_montant_ligne_ht(quantite, prix_unitaire_ht, remise_pct) > 100` :",
+   "options": [
+    {
+     "texte": "Accélère la requête",
+     "correcte": false
+    },
+    {
+     "texte": "Empêche d'utiliser un index sur ces colonnes",
+     "correcte": true
+    },
+    {
+     "texte": "Est interdit dans un `WHERE`",
+     "correcte": false
+    },
+    {
+     "texte": "Est réécrit en jointure par MariaDB",
+     "correcte": false
+    }
+   ],
+   "justification": "L'expression masque la colonne à l'optimiseur."
+  },
+  {
+   "id": "Q35",
+   "module": "5.2",
+   "question": "Comment exposer le résultat d'une fonction SQL comme propriété en lecture d'une domain class ?",
+   "options": [
+    {
+     "texte": "`transients`",
+     "correcte": false
+    },
+    {
+     "texte": "`hasOne`",
+     "correcte": false
+    },
+    {
+     "texte": "`formula` dans `mapping`",
+     "correcte": true
+    },
+    {
+     "texte": "`embedded`",
+     "correcte": false
+    }
+   ],
+   "justification": "`formula` = expression SQL en lecture seule."
+  },
+  {
+   "id": "Q36",
+   "module": "5.3",
+   "question": "Une vue est :",
+   "options": [
+    {
+     "texte": "Une copie des données rafraîchie chaque nuit",
+     "correcte": false
+    },
+    {
+     "texte": "Une requête `SELECT` nommée, recalculée à chaque lecture",
+     "correcte": true
+    },
+    {
+     "texte": "Une table temporaire de session",
+     "correcte": false
+    },
+    {
+     "texte": "Un index",
+     "correcte": false
+    }
+   ],
+   "justification": "Requête nommée, aucune donnée stockée."
+  },
+  {
+   "id": "Q37",
+   "module": "5.3",
+   "question": "Quelle exigence GORM porte sur la colonne mappée en `id` d'une vue ?",
+   "options": [
+    {
+     "texte": "Elle doit être `AUTO_INCREMENT`",
+     "correcte": false
+    },
+    {
+     "texte": "Elle doit être `nullable`",
+     "correcte": false
+    },
+    {
+     "texte": "Elle doit être une clé étrangère",
+     "correcte": false
+    },
+    {
+     "texte": "Elle doit être unique pour chaque ligne de la vue",
+     "correcte": true
+    }
+   ],
+   "justification": "Hibernate identifie chaque objet par son `id`."
+  },
+  {
+   "id": "Q38",
+   "module": "5.3",
+   "question": "On ajoute une colonne à `t` après `CREATE VIEW v AS SELECT * FROM t` :",
+   "options": [
+    {
+     "texte": "Elle n'apparaît pas dans `v` tant qu'on ne recrée pas la vue",
+     "correcte": true
+    },
+    {
+     "texte": "Elle apparaît automatiquement",
+     "correcte": false
+    },
+    {
+     "texte": "La vue devient invalide",
+     "correcte": false
+    },
+    {
+     "texte": "La vue est supprimée",
+     "correcte": false
+    }
+   ],
+   "justification": "`*` est développé à la création de la vue."
+  },
+  {
+   "id": "Q39",
+   "module": "5.3",
+   "question": "Quand préférer une procédure qui renvoie des lignes à une vue ?",
+   "options": [
+    {
+     "texte": "Pour paginer avec GORM",
+     "correcte": false
+    },
+    {
+     "texte": "Pour écrire dans les tables",
+     "correcte": false
+    },
+    {
+     "texte": "Quand la lecture exige un paramètre obligatoire ou un contrôle préalable",
+     "correcte": true
+    },
+    {
+     "texte": "Toujours, c'est plus rapide",
+     "correcte": false
+    }
+   ],
+   "justification": "Une vue ne prend pas de paramètre."
+  },
+  {
+   "id": "Q40",
+   "module": "5.3",
+   "question": "Comment vérifier que le filtre posé sur une vue d'agrégat est appliqué tôt ?",
+   "options": [
+    {
+     "texte": "`SHOW TABLES`",
+     "correcte": false
+    },
+    {
+     "texte": "`EXPLAIN`",
+     "correcte": true
+    },
+    {
+     "texte": "`DESCRIBE`",
+     "correcte": false
+    },
+    {
+     "texte": "`CHECK TABLE`",
+     "correcte": false
+    }
+   ],
+   "justification": "Le plan montre où le filtre est appliqué."
+  },
+  {
+   "id": "Q41",
+   "module": "5.4",
+   "question": "Quel mode déclare un paramètre lu en entrée puis réécrit en sortie ?",
+   "options": [
+    {
+     "texte": "`IN`",
+     "correcte": false
+    },
+    {
+     "texte": "`OUT`",
+     "correcte": false
+    },
+    {
+     "texte": "`RETURN`",
+     "correcte": false
+    },
+    {
+     "texte": "`INOUT`",
+     "correcte": true
+    }
+   ],
+   "justification": "`INOUT` : entrée lue, sortie réécrite."
+  },
+  {
+   "id": "Q42",
+   "module": "5.4",
+   "question": "Avantage de `UPDATE produit JOIN (SELECT produit_id, SUM(quantite) ...)` sur une boucle Java :",
+   "options": [
+    {
+     "texte": "Plus lisible pour un développeur Java",
+     "correcte": false
+    },
+    {
+     "texte": "Un seul ordre, et deux lignes du même produit sont cumulées avant le contrôle",
+     "correcte": true
+    },
+    {
+     "texte": "MariaDB l'impose",
+     "correcte": false
+    },
+    {
+     "texte": "Hibernate l'exige",
+     "correcte": false
+    }
+   ],
+   "justification": "Ensembliste : cumul par produit, un seul ordre."
+  },
+  {
+   "id": "Q43",
+   "module": "5.4",
+   "question": "Une procédure appelée par un service `@Transactional` doit :",
+   "options": [
+    {
+     "texte": "Laisser la transaction à l'appelant et signaler ses erreurs par `SIGNAL`",
+     "correcte": true
+    },
+    {
+     "texte": "Ouvrir `START TRANSACTION` et finir par `COMMIT`",
+     "correcte": false
+    },
+    {
+     "texte": "Renvoyer `OUT p_success` sans jamais lever d'erreur",
+     "correcte": false
+    },
+    {
+     "texte": "Faire un `ROLLBACK` silencieux en cas d'erreur",
+     "correcte": false
+    }
+   ],
+   "justification": "Procédure participante : la transaction appartient au service."
+  },
+  {
+   "id": "Q44",
+   "module": "5.4",
+   "question": "Juste après l'appel de `p_emettre_facture`, l'objet `Facture` en session :",
+   "options": [
+    {
+     "texte": "Est déjà à jour",
+     "correcte": false
+    },
+    {
+     "texte": "A été retiré de la session",
+     "correcte": false
+    },
+    {
+     "texte": "Est périmé : il faut `refresh()`",
+     "correcte": true
+    },
+    {
+     "texte": "Reste verrouillé après le commit",
+     "correcte": false
+    }
+   ],
+   "justification": "La session Hibernate ignore ce que la procédure a écrit."
+  },
+  {
+   "id": "Q45",
+   "module": "5.4",
+   "question": "Où envoyer l'e-mail de confirmation d'émission ?",
+   "options": [
+    {
+     "texte": "Dans la procédure",
+     "correcte": false
+    },
+    {
+     "texte": "Dans un trigger `AFTER UPDATE`",
+     "correcte": false
+    },
+    {
+     "texte": "Dans la vue",
+     "correcte": false
+    },
+    {
+     "texte": "Dans le service Groovy, après l'appel réussi",
+     "correcte": true
+    }
+   ],
+   "justification": "Effet extérieur : en Groovy, après le succès."
+  },
+  {
+   "id": "Q46",
+   "module": "5.5",
+   "question": "Pour refuser une ligne avant qu'elle soit écrite, on utilise :",
+   "options": [
+    {
+     "texte": "`AFTER INSERT`",
+     "correcte": false
+    },
+    {
+     "texte": "`BEFORE INSERT`",
+     "correcte": true
+    },
+    {
+     "texte": "Une vue",
+     "correcte": false
+    },
+    {
+     "texte": "Une fonction",
+     "correcte": false
+    }
+   ],
+   "justification": "`BEFORE` peut refuser par `SIGNAL` avant l'écriture."
+  },
+  {
+   "id": "Q47",
+   "module": "5.5",
+   "question": "Pour interdire un stock négatif, le meilleur outil est :",
+   "options": [
+    {
+     "texte": "Un trigger `BEFORE UPDATE`",
+     "correcte": false
+    },
+    {
+     "texte": "Un contrôle dans le service seulement",
+     "correcte": false
+    },
+    {
+     "texte": "Une contrainte `CHECK (stock >= 0)`",
+     "correcte": true
+    },
+    {
+     "texte": "Une vue filtrée",
+     "correcte": false
+    }
+   ],
+   "justification": "Déclaratif d'abord : la règle porte sur la ligne elle-même."
+  },
+  {
+   "id": "Q48",
+   "module": "5.5",
+   "question": "Les lignes supprimées par un `ON DELETE CASCADE` :",
+   "options": [
+    {
+     "texte": "Ne déclenchent pas les triggers de la table enfant",
+     "correcte": true
+    },
+    {
+     "texte": "Déclenchent les triggers de la table enfant",
+     "correcte": false
+    },
+    {
+     "texte": "Font échouer la suppression",
+     "correcte": false
+    },
+    {
+     "texte": "Déclenchent les triggers deux fois",
+     "correcte": false
+    }
+   ],
+   "justification": "Vérifié sur MariaDB 10.11 : les cascades ne déclenchent pas les triggers."
+  },
+  {
+   "id": "Q49",
+   "module": "5.5",
+   "question": "Dans un trigger, quelle fonction renvoie le compte SQL connecté (et non le propriétaire du trigger) ?",
+   "options": [
+    {
+     "texte": "`CURRENT_USER()`",
+     "correcte": false
+    },
+    {
+     "texte": "`DATABASE()`",
+     "correcte": false
+    },
+    {
+     "texte": "`@@hostname`",
+     "correcte": false
+    },
+    {
+     "texte": "`USER()`",
+     "correcte": true
+    }
+   ],
+   "justification": "`CURRENT_USER()` renvoie le propriétaire du trigger."
+  },
+  {
+   "id": "Q50",
+   "module": "5.5",
+   "question": "Un trigger `BEFORE INSERT` modifie `NEW.prix_unitaire_ht`. L'objet Grails qui vient d'être enregistré :",
+   "options": [
+    {
+     "texte": "Est mis à jour automatiquement",
+     "correcte": false
+    },
+    {
+     "texte": "Garde l'ancienne valeur jusqu'à un `refresh()`",
+     "correcte": true
+    },
+    {
+     "texte": "Provoque une erreur",
+     "correcte": false
+    },
+    {
+     "texte": "Est retiré de la session",
+     "correcte": false
+    }
+   ],
+   "justification": "La base a modifié la ligne sans que la session le sache."
+  },
+  {
+   "id": "Q51",
+   "module": "5.6",
+   "question": "Quelle est la première question de l'arbre de décision ?",
+   "options": [
+    {
+     "texte": "Quel est le volume de données ?",
+     "correcte": false
+    },
+    {
+     "texte": "Quelle solution est la plus rapide ?",
+     "correcte": false
+    },
+    {
+     "texte": "Le besoin touche-t-il l'extérieur de la base ?",
+     "correcte": true
+    },
+    {
+     "texte": "Que préfère l'équipe ?",
+     "correcte": false
+    }
+   ],
+   "justification": "On écarte d'abord ce qui doit rester en Groovy."
+  },
+  {
+   "id": "Q52",
+   "module": "5.6",
+   "question": "Liste des factures avec leurs totaux, filtrable et paginée :",
+   "options": [
+    {
+     "texte": "Vue + domain class en lecture seule",
+     "correcte": true
+    },
+    {
+     "texte": "Procédure autonome",
+     "correcte": false
+    },
+    {
+     "texte": "Trigger `AFTER UPDATE`",
+     "correcte": false
+    },
+    {
+     "texte": "Fonction appelée pour chaque ligne",
+     "correcte": false
+    }
+   ],
+   "justification": "Lecture calculée réutilisée en liste : question 4."
+  },
+  {
+   "id": "Q53",
+   "module": "5.6",
+   "question": "« Une facture émise ne change plus », y compris pour un script de reprise de données :",
+   "options": [
+    {
+     "texte": "Un intercepteur suffit",
+     "correcte": false
+    },
+    {
+     "texte": "Un contrôle dans le service suffit",
+     "correcte": false
+    },
+    {
+     "texte": "Une vue",
+     "correcte": false
+    },
+    {
+     "texte": "Un trigger `BEFORE`, doublé d'un contrôle dans le service pour le message",
+     "correcte": true
+    }
+   ],
+   "justification": "Invariant quel que soit l'auteur : question 2 ; le service donne le message."
+  },
+  {
+   "id": "Q54",
+   "module": "5.6",
+   "question": "Atelier fidélité : où décider d'appliquer le bonus, règle commerciale qui change chaque trimestre ?",
+   "options": [
+    {
+     "texte": "Dans un trigger `BEFORE INSERT` sur `ligne_facture`",
+     "correcte": false
+    },
+    {
+     "texte": "Dans le service Groovy, à partir d'un chiffre d'affaires calculé en base",
+     "correcte": true
+    },
+    {
+     "texte": "Dans la vue des totaux",
+     "correcte": false
+    },
+    {
+     "texte": "Dans une procédure autonome lancée la nuit",
+     "correcte": false
+    }
+   ],
+   "justification": "Décision changeante en Groovy, calcul en base."
+  },
+  {
+   "id": "Q55",
+   "module": "5.6",
+   "question": "Lequel est un signe d'abus de la base ?",
+   "options": [
+    {
+     "texte": "Une vue d'agrégat lue par GORM",
+     "correcte": false
+    },
+    {
+     "texte": "Une fonction d'arrondi partagée",
+     "correcte": false
+    },
+    {
+     "texte": "Une procédure de 400 lignes qui mêle règles commerciales, formatage et drapeaux",
+     "correcte": true
+    },
+    {
+     "texte": "Un trigger d'audit des statuts",
+     "correcte": false
+    }
+   ],
+   "justification": "La procédure est devenue un « service caché »."
+  },
+  {
+   "id": "Q56",
+   "module": "6",
+   "question": "La méthode `before()` d'un intercepteur renvoie `false` :",
+   "options": [
+    {
+     "texte": "L'action n'est pas exécutée",
+     "correcte": true
+    },
+    {
+     "texte": "Un avertissement est journalisé puis l'action s'exécute",
+     "correcte": false
+    },
+    {
+     "texte": "Une exception est levée",
+     "correcte": false
+    },
+    {
+     "texte": "L'action s'exécute sans vue",
+     "correcte": false
+    }
+   ],
+   "justification": "`false` interrompt la chaîne."
+  },
+  {
+   "id": "Q57",
+   "module": "6",
+   "question": "Comment un intercepteur Grails est-il enregistré ?",
+   "options": [
+    {
+     "texte": "Automatiquement : classe `*Interceptor` dans `grails-app/controllers`",
+     "correcte": true
+    },
+    {
+     "texte": "Par un `WebMvcConfigurer`",
+     "correcte": false
+    },
+    {
+     "texte": "Dans `application.yml`",
+     "correcte": false
+    },
+    {
+     "texte": "Obligatoirement dans `resources.groovy`",
+     "correcte": false
+    }
+   ],
+   "justification": "Convention de nommage et d'emplacement."
+  },
+  {
+   "id": "Q58",
+   "module": "6",
+   "question": "Dans une TagLib, `static namespace = 'fac'` signifie :",
+   "options": [
+    {
+     "texte": "Les tags s'écrivent `<fac:montant .../>`",
+     "correcte": true
+    },
+    {
+     "texte": "La classe est dans le package `fac`",
+     "correcte": false
+    },
+    {
+     "texte": "Les messages i18n sont préfixés `fac.`",
+     "correcte": false
+    },
+    {
+     "texte": "Le fichier doit s'appeler `fac.groovy`",
+     "correcte": false
+    }
+   ],
+   "justification": "Le préfixe des tags dans les GSP."
+  },
+  {
+   "id": "Q59",
+   "module": "6",
+   "question": "Différence entre `after()` et `afterView()` :",
+   "options": [
+    {
+     "texte": "`after()` avant le rendu de la vue, `afterView()` après",
+     "correcte": true
+    },
+    {
+     "texte": "L'inverse",
+     "correcte": false
+    },
+    {
+     "texte": "Aucune",
+     "correcte": false
+    },
+    {
+     "texte": "`afterView()` ne s'exécute qu'en cas d'erreur",
+     "correcte": false
+    }
+   ],
+   "justification": "`after()` peut encore modifier le modèle."
+  },
+  {
+   "id": "Q60",
+   "module": "6",
+   "question": "Par défaut, comment afficher une page Grails en anglais ?",
+   "options": [
+    {
+     "texte": "Ajouter `?lang=en` à l'URL",
+     "correcte": true
+    },
+    {
+     "texte": "Modifier `application.yml` et redémarrer",
+     "correcte": false
+    },
+    {
+     "texte": "Configurer un `LocaleChangeInterceptor`",
+     "correcte": false
+    },
+    {
+     "texte": "Impossible sans plugin",
+     "correcte": false
+    }
+   ],
+   "justification": "Le paramètre `lang` est traité par défaut."
+  },
+  {
+   "id": "Q61",
+   "module": "git-ia",
+   "question": "Quel message de commit respecte la convention du dépôt ?",
+   "options": [
+    {
+     "texte": "`fix`",
+     "correcte": false
+    },
+    {
+     "texte": "`feat(ex03): ajouter le service de commande d'achat`",
+     "correcte": true
+    },
+    {
+     "texte": "`modifs du jour`",
+     "correcte": false
+    },
+    {
+     "texte": "`WIP final v2`",
+     "correcte": false
+    }
+   ],
+   "justification": "Format Conventional Commits avec portée `exNN`."
+  },
+  {
+   "id": "Q62",
+   "module": "git-ia",
+   "question": "Exercice de la partie sans IA : vous avez demandé à un assistant d'expliquer une erreur de compilation. Que faire ?",
+   "options": [
+    {
+     "texte": "Rien, ce n'est pas du code",
+     "correcte": false
+    },
+    {
+     "texte": "Le déclarer dans `RENDU.md` : outil, moment, question posée, ce que vous en avez retenu",
+     "correcte": true
+    },
+    {
+     "texte": "Supprimer le commit concerné",
+     "correcte": false
+    },
+    {
+     "texte": "Refaire l'exercice",
+     "correcte": false
+    }
+   ],
+   "justification": "Toute aide IA, même hors code, est déclarée."
+  },
+  {
+   "id": "Q63",
+   "module": "git-ia",
+   "question": "Partie avec IA : que doit contenir `JOURNAL_IA.md` ?",
+   "options": [
+    {
+     "texte": "Seulement le code généré",
+     "correcte": false
+    },
+    {
+     "texte": "Outils et configuration, prompts écrits, ce qui a été accepté, rejeté ou corrigé",
+     "correcte": true
+    },
+    {
+     "texte": "Rien si le code fonctionne",
+     "correcte": false
+    },
+    {
+     "texte": "Le nom du modèle uniquement",
+     "correcte": false
+    }
+   ],
+   "justification": "Le journal doit permettre de rejouer et juger la démarche."
+  },
+  {
+   "id": "Q64",
+   "module": "git-ia",
+   "question": "Quel trailer de commit signale un commit assisté par IA dans ce dépôt ?",
+   "options": [
+    {
+     "texte": "`Assisted-by: <outil>`",
+     "correcte": true
+    },
+    {
+     "texte": "`Signed-off-by: <nom>`",
+     "correcte": false
+    },
+    {
+     "texte": "`Reviewed-by: <outil>`",
+     "correcte": false
+    },
+    {
+     "texte": "Un tag Git",
+     "correcte": false
+    }
+   ],
+   "justification": "Convention du `CONTRIBUTING.md` du dépôt."
+  },
+  {
+   "id": "Q65",
+   "module": "git-ia",
+   "question": "Pourquoi plusieurs commits courts plutôt qu'un seul en fin d'exercice ?",
+   "options": [
+    {
+     "texte": "Historique lisible, revue et retour arrière ciblés, démarche visible",
+     "correcte": true
+    },
+    {
+     "texte": "Git limite la taille d'un commit",
+     "correcte": false
+    },
+    {
+     "texte": "Chaque commit rapporte des points",
+     "correcte": false
+    },
+    {
+     "texte": "Pour éviter les conflits",
+     "correcte": false
+    }
+   ],
+   "justification": "L'historique documente le raisonnement."
+  }
+ ]
+}

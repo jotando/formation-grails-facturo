@@ -1,0 +1,119 @@
+---
+grails:
+    profile: web
+    codegen:
+        defaultPackage: facturo
+    gorm:
+        reactor:
+            # Whether to translate GORM events into Reactor events
+            # Disabled by default for performance reasons
+            events: false
+info:
+    app:
+        name: '@info.app.name@'
+        version: '@info.app.version@'
+        grailsVersion: '@info.app.grailsVersion@'
+spring:
+    main:
+        banner-mode: "off"
+    groovy:
+        template:
+            check-template-location: false
+
+# Spring Actuator Endpoints are Disabled by Default
+endpoints:
+    enabled: false
+    jmx:
+        enabled: true
+
+---
+grails:
+    mime:
+        disable:
+            accept:
+                header:
+                    userAgents:
+                        - Gecko
+                        - WebKit
+                        - Presto
+                        - Trident
+        types:
+            all: '*/*'
+            atom: application/atom+xml
+            css: text/css
+            csv: text/csv
+            form: application/x-www-form-urlencoded
+            html:
+              - text/html
+              - application/xhtml+xml
+            js: text/javascript
+            json:
+              - application/json
+              - text/json
+            multipartForm: multipart/form-data
+            pdf: application/pdf
+            rss: application/rss+xml
+            text: text/plain
+            hal:
+              - application/hal+json
+              - application/hal+xml
+            xml:
+              - text/xml
+              - application/xml
+    urlmapping:
+        cache:
+            maxsize: 1000
+    controllers:
+        defaultScope: singleton
+    converters:
+        encoding: UTF-8
+    views:
+        default:
+            codec: html
+        gsp:
+            encoding: UTF-8
+            htmlcodec: xml
+            codecs:
+                expression: html
+                scriptlets: html
+                taglib: none
+                staticparts: none
+endpoints:
+    jmx:
+        unique-names: true
+
+---
+hibernate:
+    cache:
+        queries: false
+        use_second_level_cache: false
+        use_query_cache: false
+dataSource:
+    pooled: true
+    jmxExport: true
+    driverClassName: org.mariadb.jdbc.Driver
+    dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+    username: ${DB_USER:facturo}
+    password: ${DB_PASSWORD:facturo}
+    url: ${DB_URL:jdbc:mariadb://localhost:3306/facturo}
+    # La base est créée et versionnée par src/main/sql/*.sql : Hibernate ne doit JAMAIS la modifier.
+    dbCreate: none
+    logSql: false
+    formatSql: true
+    properties:
+        initialSize: 2
+        maxActive: 20
+        validationQuery: SELECT 1
+        testOnBorrow: true
+        defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
+
+environments:
+    development:
+        dataSource:
+            dbCreate: none
+    test:
+        dataSource:
+            dbCreate: none
+    production:
+        dataSource:
+            dbCreate: none
