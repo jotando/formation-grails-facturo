@@ -1,0 +1,9 @@
+# Fins de ligne LF partout : indispensable pour les scripts exécutés sous WSL ou Linux
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.jar binary
+*.png binary
+*.ico binary
+*.woff binary
+*.woff2 binary

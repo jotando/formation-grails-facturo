@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>De Spring Boot à Grails 3.3 — formation Facturo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/groovy.min.js"></script>
+<style>
+:root {
+  --fond: #F4F6F5; --surface: #FFFFFF; --encre: #1B2420; --discret: #56635D; --filet: #D5DCD8;
+  --a1: #3F6698; --a1-teinte: #E8EEF6; --a2: #2E7A57; --a2-teinte: #E5F2EB;
+  --alerte: #9A6400; --alerte-teinte: #FBF1DE; --faux: #A33A2B; --faux-teinte: #F8E7E4;
+  --code-fond: #EEF1EF; --focus: #3F6698;
+  --t-mot: #3F6698; --t-chaine: #2E7A57; --t-commentaire: #7A8680; --t-nombre: #9A6400; --t-titre: #6B3FA0;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fond: #121815; --surface: #1A221E; --encre: #E2E9E5; --discret: #9AA8A1; --filet: #2F3B35;
+    --a1: #86A9DA; --a1-teinte: #1D2735; --a2: #6EC198; --a2-teinte: #19291F;
+    --alerte: #E3AB4E; --alerte-teinte: #2B2416; --faux: #E58B7D; --faux-teinte: #2E1D1A;
+    --code-fond: #161D1A; --focus: #86A9DA;
+    --t-mot: #86A9DA; --t-chaine: #6EC198; --t-commentaire: #7F8D86; --t-nombre: #E3AB4E; --t-titre: #C3A3EB;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --fond: #121815; --surface: #1A221E; --encre: #E2E9E5; --discret: #9AA8A1; --filet: #2F3B35;
+  --a1: #86A9DA; --a1-teinte: #1D2735; --a2: #6EC198; --a2-teinte: #19291F;
+  --alerte: #E3AB4E; --alerte-teinte: #2B2416; --faux: #E58B7D; --faux-teinte: #2E1D1A;
+  --code-fond: #161D1A; --focus: #86A9DA;
+  --t-mot: #86A9DA; --t-chaine: #6EC198; --t-commentaire: #7F8D86; --t-nombre: #E3AB4E; --t-titre: #C3A3EB;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: inherit; }
+html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 4.5rem); }
+body {
+  margin: 0; background: var(--fond); color: var(--encre);
+  font: 1.0625rem/1.6 "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+}
+a { color: var(--a1); }
+a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+code, pre, kbd { font-family: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace; }
+
+/* ---- barre du haut ---- */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+.barre {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9;
+  display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
+  padding: .7rem 1.25rem; background: var(--surface); border-bottom: 1px solid var(--filet);
+}
+.barre .marque { font-weight: 700; color: var(--encre); text-decoration: none; margin-right: auto; display: flex; align-items: baseline; gap: .5rem; }
+.barre .marque .voie1 { color: var(--a1); } .barre .marque .voie2 { color: var(--a2); }
+.barre nav { display: flex; gap: .25rem; flex-wrap: wrap; }
+.barre nav a { padding: .35rem .7rem; border-radius: 6px; color: var(--encre); text-decoration: none; }
+.barre nav a[aria-current="page"] { background: var(--fond); box-shadow: inset 0 -2px 0 var(--a2); }
+.bouton-menu { display: none; }
+
+/* ---- cadre ---- */
+.cadre { display: grid; grid-template-columns: 17.5rem minmax(0, 1fr); min-height: calc(100vh - 3.5rem); }
+#sommaire { border-right: 1px solid var(--filet); padding: 1.25rem .75rem 2rem; background: var(--surface); }
+#sommaire .groupe { margin: 0 0 1rem; }
+#sommaire .titre-groupe { font-size: .85rem; color: var(--discret); margin: 0 .5rem .35rem; }
+#sommaire ol { list-style: none; margin: 0; padding: 0; }
+#sommaire a {
+  display: grid; grid-template-columns: 2.1rem 1fr; gap: .25rem; align-items: start;
+  padding: .4rem .5rem; border-radius: 6px; color: var(--encre); text-decoration: none; font-size: .95rem; line-height: 1.35;
+}
+#sommaire a:hover { background: var(--fond); }
+#sommaire a[aria-current="page"] { background: var(--a2-teinte); }
+#sommaire .num { color: var(--discret); font-variant-numeric: tabular-nums; }
+#sommaire .lu .num { color: var(--a2); }
+#sommaire .jauge { grid-column: 2; height: 3px; border-radius: 2px; background: var(--filet); margin-top: .3rem; overflow: hidden; }
+#sommaire .jauge span { display: block; height: 100%; background: var(--a2); }
+#sommaire .sous a { padding-left: 1.25rem; }
+
+main { padding: 2rem clamp(1rem, 4vw, 3rem) 4rem; min-width: 0; }
+main:focus { outline: none; }
+.lecture { max-width: 46rem; }
+.large { max-width: 72rem; }
+
+/* ---- contenu rédigé ---- */
+.contenu h1, .contenu h2 { line-height: 1.2; letter-spacing: -.01em; }
+.contenu h2 { font-size: 2rem; margin: 0 0 1rem; }
+.contenu h3 { font-size: 1.3rem; margin: 2.25rem 0 .6rem; }
+.contenu p, .contenu li { max-width: 46rem; }
+.contenu table { border-collapse: collapse; font-size: .95rem; margin: 1rem 0 1.5rem; min-width: 32rem; }
+.contenu .tableau { overflow-x: auto; max-width: 100%; }
+.contenu th, .contenu td { border-bottom: 1px solid var(--filet); padding: .45rem .7rem; text-align: left; vertical-align: top; }
+.contenu th { background: var(--fond); }
+.contenu :not(pre) > code { background: var(--code-fond); padding: .08em .3em; border-radius: 4px; font-size: .88em; }
+.contenu pre { background: var(--code-fond); border: 1px solid var(--filet); border-radius: 8px; padding: .9rem 1rem; overflow-x: auto; font-size: .84rem; line-height: 1.5; }
+.contenu blockquote { margin: 1rem 0; padding: .25rem 1rem; border-left: 3px solid var(--a2); color: var(--discret); }
+.hljs-keyword, .hljs-built_in, .hljs-type, .hljs-meta, .hljs-literal { color: var(--t-mot); }
+.hljs-string, .hljs-regexp, .hljs-attr { color: var(--t-chaine); }
+.hljs-comment, .hljs-quote { color: var(--t-commentaire); font-style: italic; }
+.hljs-number, .hljs-variable, .hljs-template-variable { color: var(--t-nombre); }
+.hljs-title, .hljs-section, .hljs-name, .hljs-tag { color: var(--t-titre); }
+
+/* ---- les deux voies A1 / A2 : l'élément distinctif ---- */
+.voies { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.25rem; margin: 1.5rem 0; }
+.voies.a-la-suite { grid-template-columns: minmax(0, 1fr); }
+.voie { border-top: 4px solid; padding-top: .25rem; min-width: 0; }
+.voie.a1 { border-color: var(--a1); } .voie.a2 { border-color: var(--a2); }
+.voie > h3:first-child { margin-top: .5rem; font-size: 1.1rem; }
+.voie.a1 > h3:first-child { color: var(--a1); } .voie.a2 > h3:first-child { color: var(--a2); }
+.voie.a1 pre { border-left: 3px solid var(--a1); } .voie.a2 pre { border-left: 3px solid var(--a2); }
+.bascule-voies { margin: .5rem 0 0; }
+@media (max-width: 64rem) { .voies { grid-template-columns: minmax(0, 1fr); } .bascule-voies { display: none; } }
+
+/* ---- boutons ---- */
+.btn {
+  font: inherit; font-weight: 700; cursor: pointer; border-radius: 8px; padding: .6rem 1.1rem;
+  border: 1.5px solid var(--a2); background: var(--a2); color: var(--surface);
+}
+a.btn { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; text-align: center; }
+.btn.secondaire { background: transparent; color: var(--a2); }
+.btn.discret { background: transparent; border-color: var(--filet); color: var(--encre); font-weight: 400; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.actions { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; margin: 1.5rem 0; }
+
+/* ---- accueil ---- */
+.accroche { display: grid; gap: 2rem; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: center; margin-bottom: 2.5rem; }
+.accroche h1 { font-size: clamp(2.2rem, 4.5vw, 3.4rem); line-height: 1.05; margin: 0 0 1rem; letter-spacing: -.02em; }
+.accroche p { font-size: 1.15rem; color: var(--discret); max-width: 34rem; margin: 0; }
+.duo { display: grid; gap: .5rem; }
+.duo div { background: var(--surface); border: 1px solid var(--filet); border-radius: 8px; padding: .7rem .9rem; border-left: 4px solid; }
+.duo .a1 { border-left-color: var(--a1); } .duo .a2 { border-left-color: var(--a2); }
+.duo small { display: block; color: var(--discret); font-size: .85rem; margin-bottom: .15rem; }
+.duo code { font-size: .9rem; white-space: pre-wrap; word-break: break-word; }
+.etapes { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; counter-reset: etape; }
+.etapes li { background: var(--surface); border: 1px solid var(--filet); border-radius: 10px; padding: 1.1rem 1.2rem 1.2rem; counter-increment: etape; display: flex; flex-direction: column; gap: .5rem; }
+.etapes li::before { content: counter(etape); font-weight: 700; color: var(--a2); font-size: 1.4rem; }
+.etapes h2 { margin: 0; font-size: 1.15rem; }
+.etapes p { margin: 0; color: var(--discret); flex: 1; }
+.etat { font-size: .92rem; }
+.etat.fait { color: var(--a2); }
+@media (max-width: 52rem) { .accroche, .etapes { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---- QCM ---- */
+.quiz { max-width: 44rem; }
+.quiz .entete { display: flex; justify-content: space-between; gap: 1rem; color: var(--discret); font-size: .95rem; }
+.progression-quiz { height: 6px; border-radius: 3px; background: var(--filet); margin: .5rem 0 1.5rem; overflow: hidden; }
+.progression-quiz span { display: block; height: 100%; background: var(--a2); transition: width .25s ease; }
+.quiz .enonce { font-size: 1.25rem; line-height: 1.45; margin: 0 0 1.25rem; }
+.options { display: grid; gap: .6rem; margin: 0; padding: 0; border: 0; }
+.option {
+  display: grid; grid-template-columns: 1.6rem 1fr; gap: .6rem; align-items: start; text-align: left;
+  font: inherit; color: var(--encre); background: var(--surface); border: 1.5px solid var(--filet); border-radius: 8px;
+  padding: .75rem .9rem; cursor: pointer;
+}
+.option:hover { border-color: var(--a2); }
+.option[aria-checked="true"] { border-color: var(--a2); background: var(--a2-teinte); }
+.option .lettre { font-weight: 700; color: var(--discret); }
+.resultat-score { display: flex; align-items: baseline; gap: .75rem; margin: 0 0 .5rem; }
+.resultat-score strong { font-size: 3rem; line-height: 1; color: var(--a2); }
+.correction { border-top: 1px solid var(--filet); padding: 1rem 0; }
+.correction .verdict { font-weight: 700; }
+.correction.juste .verdict { color: var(--a2); } .correction.faux .verdict { color: var(--faux); }
+.correction .reponse { margin: .3rem 0; }
+.correction .enonce-court { font-weight: 700; margin: .3rem 0; }
+.correction .verdict small { font-weight: 400; color: var(--discret); margin-left: .4rem; }
+.quiz :not(pre) > code { background: var(--code-fond); padding: .08em .3em; border-radius: 4px; font-size: .88em; }
+.correction .justification { color: var(--discret); margin: .3rem 0 0; }
+.tableau-modules { border-collapse: collapse; width: 100%; font-size: .95rem; }
+.tableau-modules th, .tableau-modules td { border-bottom: 1px solid var(--filet); padding: .5rem .6rem; text-align: left; }
+.tableau-modules td.nb { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.mini-jauge { display: inline-block; width: 4.5rem; height: 6px; border-radius: 3px; background: var(--filet); vertical-align: middle; margin-left: .4rem; overflow: hidden; }
+.mini-jauge span { display: block; height: 100%; background: var(--a2); }
+.delta-plus { color: var(--a2); font-weight: 700; } .delta-moins { color: var(--faux); font-weight: 700; }
+.encart { background: var(--alerte-teinte); border-left: 4px solid var(--alerte); padding: .75rem 1rem; border-radius: 6px; margin: 1rem 0; }
+.encart.info { background: var(--a1-teinte); border-left-color: var(--a1); }
+label.champ { display: grid; gap: .3rem; max-width: 24rem; margin: .75rem 0; }
+label.champ input { font: inherit; padding: .5rem .7rem; border: 1.5px solid var(--filet); border-radius: 8px; background: var(--surface); color: var(--encre); }
+textarea.export { width: 100%; min-height: 12rem; font: .85rem/1.45 "JetBrains Mono", monospace; background: var(--code-fond); color: var(--encre); border: 1px solid var(--filet); border-radius: 8px; padding: .75rem; }
+
+/* ---- arbre de décision ---- */
+.arbre { margin: 1.5rem 0; max-width: 46rem; }
+.arbre ol { list-style: none; margin: 0; padding: 0; counter-reset: q; }
+.arbre li.q { counter-increment: q; border-left: 3px solid var(--filet); padding: .6rem 0 .6rem 1rem; margin-left: .5rem; }
+.arbre li.q.active { border-left-color: var(--a2); }
+.arbre li.q.passee { opacity: .6; }
+.arbre .question { font-weight: 700; }
+.arbre .question::before { content: counter(q) ". "; color: var(--discret); }
+.arbre .detail { color: var(--discret); font-size: .95rem; }
+.arbre .choix { display: flex; gap: .5rem; margin-top: .5rem; }
+.arbre .issue { margin-top: 1rem; background: var(--a2-teinte); border-left: 4px solid var(--a2); padding: .8rem 1rem; border-radius: 6px; }
+.arbre .issue strong { display: block; font-size: 1.1rem; }
+
+.pied-section { border-top: 1px solid var(--filet); margin-top: 3rem; padding-top: 1rem; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.pied-section a { text-decoration: none; }
+.vide { color: var(--discret); }
+
+@media (max-width: 52rem) {
+  .bouton-menu { display: inline-block; }
+  .cadre { grid-template-columns: minmax(0, 1fr); }
+  #sommaire { display: none; border-right: 0; border-bottom: 1px solid var(--filet); }
+  #sommaire.ouvert { display: block; }
+  .barre { padding: .5rem .9rem; gap: .5rem; }
+  .barre .marque { font-size: .95rem; }
+  .bouton-menu { padding: .35rem .7rem; }
+  .barre nav { width: 100%; order: 3; flex-wrap: nowrap; overflow-x: auto; font-size: .95rem; }
+  .barre nav a { padding: .3rem .55rem; white-space: nowrap; }
+  .contenu h2, .quiz h2 { font-size: 1.6rem; }
+  main { padding-top: 1.25rem; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+@media print { .barre, #sommaire, .actions, .pied-section, .bascule-voies { display: none !important; } .cadre { display: block; } }
+</style>
+</head>
+<body>
+<header class="barre">
+  <button class="btn discret bouton-menu" id="bouton-menu" aria-expanded="false" aria-controls="sommaire">Sommaire</button>
+  <a class="marque" href="#accueil"><span class="voie1">Spring Boot</span><span aria-hidden="true">→</span><span class="voie2">Grails 3.3</span></a>
+  <nav aria-label="Évaluation">
+    <a href="#positionnement" data-route="positionnement">Positionnement</a>
+    <a href="#progression" data-route="progression">Ma progression</a>
+    <a href="#bilan" data-route="bilan">Bilan final</a>
+  </nav>
+</header>
+<div class="cadre">
+  <nav id="sommaire" aria-label="Sommaire de la formation"></nav>
+  <main id="vue" tabindex="-1"></main>
+</div>
+
+<script type="application/json" id="donnees">__DONNEES__</script>
+<script>
+(function () {
+  'use strict';
+  var D = JSON.parse(document.getElementById('donnees').textContent);
+  var SECTIONS = D.sections;
+  var QUESTIONS = D.qcm.questions;
+  var MODULES = D.qcm.modules;
+  var ORDRE_MODULES = Object.keys(MODULES);
+  var CLE = 'facturo-formation-v1';
+  var vue = document.getElementById('vue');
+  var sommaire = document.getElementById('sommaire');
+
+  /* ---------- état local (navigateur du stagiaire uniquement) ---------- */
+  function charger() { try { return JSON.parse(localStorage.getItem(CLE)) || {}; } catch (e) { return {}; } }
+  var etat = Object.assign({ lus: {}, entrainements: {}, positionnement: null, bilan: null, nom: '', disposition: 'cote', enCours: null, derniere: null }, charger());
+  function sauver() { try { localStorage.setItem(CLE, JSON.stringify(etat)); } catch (e) { /* stockage indisponible : on continue sans */ } }
+
+  /* ---------- outils ---------- */
+  function el(tag, attrs, enfants) {
+    var n = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === 'texte') n.textContent = attrs[k];
+      else if (k === 'html') n.innerHTML = attrs[k];
+      else if (k.slice(0, 2) === 'on') n.addEventListener(k.slice(2), attrs[k]);
+      else if (attrs[k] !== false && attrs[k] != null) n.setAttribute(k, attrs[k] === true ? '' : attrs[k]);
+    });
+    (enfants || []).forEach(function (c) { if (c) n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return n;
+  }
+  var MD_OK = typeof marked !== 'undefined', HL_OK = typeof hljs !== 'undefined';
+  function echapper(t) { return String(t || '').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function enLigne(md) { return MD_OK ? marked.parseInline(md || '') : echapper(md); }
+  function enBloc(md) {
+    if (MD_OK) return marked.parse(md, { mangle: false, headerIds: false });
+    return '<div class="encart">La mise en forme n’a pas pu être chargée : l’accès à cdnjs.cloudflare.com est peut-être bloqué par votre réseau. Le contenu s’affiche en texte brut.</div><pre>' + echapper(md) + '</pre>';
+  }
+  function melange(t) { var a = t.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
+  function pct(b, t) { return t ? Math.round(b * 100 / t) : 0; }
+  function dateCourte(iso) { return iso ? new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'; }
+  function jauge(b, t) { return '<span class="mini-jauge" aria-hidden="true"><span style="width:' + pct(b, t) + '%"></span></span>'; }
+  function questionsDu(mod) { return QUESTIONS.filter(function (q) { return q.module === mod; }); }
+  function section(id) { for (var i = 0; i < SECTIONS.length; i++) if (SECTIONS[i].id === id) return SECTIONS[i]; return null; }
+  function sectionDuModule(mod) { for (var i = 0; i < SECTIONS.length; i++) if (SECTIONS[i].qcm === mod) return SECTIONS[i]; return null; }
+  function nomModule(mod) { return MODULES[mod] || mod; }
+
+  /* ---------- sommaire ---------- */
+  function construireSommaire(courant) {
+    sommaire.innerHTML = '';
+    var groupe = el('div', { class: 'groupe' }, [el('p', { class: 'titre-groupe', texte: 'Parcours' })]);
+    var liste = el('ol');
+    SECTIONS.forEach(function (s) {
+      var ent = s.qcm ? etat.entrainements[s.qcm] : null;
+      var a = el('a', { href: '#' + s.id, class: etat.lus[s.id] ? 'lu' : null, 'aria-current': s.id === courant ? 'page' : false }, [
+        el('span', { class: 'num', texte: s.num ? s.num : '' }),
+        el('span', { texte: s.court })
+      ]);
+      if (ent) a.appendChild(el('span', { class: 'jauge', title: 'Meilleur score : ' + ent.meilleur + '/' + ent.total, html: '<span style="width:' + pct(ent.meilleur, ent.total) + '%"></span>' }));
+      if (etat.lus[s.id]) a.setAttribute('title', 'Lu');
+      liste.appendChild(el('li', { class: s.parent ? 'sous' : null }, [a]));
+    });
+    groupe.appendChild(liste);
+    sommaire.appendChild(groupe);
+    var g2 = el('div', { class: 'groupe' }, [el('p', { class: 'titre-groupe', texte: 'S’entraîner' })]);
+    var l2 = el('ol');
+    l2.appendChild(el('li', null, [el('a', { href: '#qcm-git-ia', 'aria-current': courant === 'qcm-git-ia' ? 'page' : false }, [el('span', { class: 'num', texte: '' }), el('span', { texte: 'QCM Git et IA' })])]));
+    l2.appendChild(el('li', null, [el('a', { href: '#arbre', 'aria-current': courant === 'arbre' ? 'page' : false }, [el('span', { class: 'num', texte: '' }), el('span', { texte: 'Arbre de décision' })])]));
+    g2.appendChild(l2);
+    sommaire.appendChild(g2);
+  }
+
+  /* ---------- accueil ---------- */
+  function vueAccueil() {
+    var nbLus = SECTIONS.filter(function (s) { return etat.lus[s.id]; }).length;
+    var reprise = etat.derniere && section(etat.derniere) ? etat.derniere : SECTIONS[0].id;
+    var html =
+      '<div class="large">' +
+      '<section class="accroche"><div><h1>De Spring Boot à Grails&nbsp;3.3</h1>' +
+      '<p>Ce que vous savez déjà faire avec Thymeleaf, Spring MVC et Spring Data, refait avec GSP, Groovy et GORM, puis calculé dans MariaDB.</p></div>' +
+      '<div class="duo" aria-label="Exemple de correspondance">' +
+      '<div class="a1"><small>Spring Data</small><code>clients.findByActifTrue()</code></div>' +
+      '<div class="a2"><small>GORM</small><code>Client.findAllByActif(true)</code></div>' +
+      '<div class="a2"><small>MariaDB</small><code>CALL p_emettre_facture(1, @numero)</code></div>' +
+      '</div></section>' +
+      '<ol class="etapes">' +
+      '<li><h2>Vous positionner</h2><p>65 questions, sans correction, pour mesurer votre point de départ module par module.</p>' +
+      '<p class="etat ' + (etat.positionnement ? 'fait' : '') + '">' + (etat.positionnement ? 'Fait le ' + dateCourte(etat.positionnement.date) + ' : ' + etat.positionnement.score + '/' + etat.positionnement.total : (etat.enCours && etat.enCours.mode === 'positionnement' ? 'En cours : question ' + (etat.enCours.i + 1) + ' sur ' + etat.enCours.ordre.length : 'Pas encore fait')) + '</p>' +
+      '<a class="btn ' + (etat.positionnement ? 'secondaire' : '') + '" href="#positionnement">' + (etat.positionnement ? 'Voir mon positionnement' : 'Commencer le positionnement') + '</a></li>' +
+      '<li><h2>Suivre les modules</h2><p>Dans l’ordre ou là où vous en avez besoin. Chaque module se termine par 5 questions corrigées.</p>' +
+      '<p class="etat">' + nbLus + ' module' + (nbLus > 1 ? 's' : '') + ' lu' + (nbLus > 1 ? 's' : '') + ' sur ' + SECTIONS.length + '</p>' +
+      '<a class="btn secondaire" href="#' + reprise + '">' + (nbLus ? 'Reprendre la lecture' : 'Commencer par la présentation') + '</a></li>' +
+      '<li><h2>Faire le bilan</h2><p>Les mêmes 65 questions, options mélangées, comparées à votre positionnement. Vous remettez ce bilan à votre formateur.</p>' +
+      '<p class="etat ' + (etat.bilan ? 'fait' : '') + '">' + (etat.bilan ? 'Fait le ' + dateCourte(etat.bilan.date) + ' : ' + etat.bilan.score + '/' + etat.bilan.total : 'Pas encore fait') + '</p>' +
+      '<a class="btn secondaire" href="#bilan">' + (etat.bilan ? 'Voir mon bilan' : 'Passer le bilan') + '</a></li>' +
+      '</ol>' +
+      '<p class="vide" style="margin-top:2rem">Votre progression reste dans ce navigateur : rien n’est envoyé. La page « Ma progression » permet d’exporter vos résultats.</p>' +
+      '</div>';
+    vue.innerHTML = html;
+  }
+
+  /* ---------- module ---------- */
+  function vueSection(s) {
+    etat.derniere = s.id; sauver();
+    var idx = SECTIONS.indexOf(s);
+    var wrap = el('article', { class: 'contenu large' });
+    wrap.innerHTML = enBloc(s.md);
+    wrap.querySelectorAll('table').forEach(function (t) { var d = el('div', { class: 'tableau' }); t.parentNode.insertBefore(d, t); d.appendChild(t); });
+    if (HL_OK) wrap.querySelectorAll('pre code').forEach(function (c) { try { hljs.highlightElement(c); } catch (e) {} });
+    construireVoies(wrap);
+    wrap.querySelectorAll('[data-arbre]').forEach(function (n) { monterArbre(n); });
+
+    var actions = el('div', { class: 'actions' });
+    var lu = !!etat.lus[s.id];
+    actions.appendChild(el('button', { class: 'btn ' + (lu ? 'discret' : 'secondaire'), texte: lu ? 'Lu ✓ (annuler)' : 'Marquer comme lu', onclick: function () { if (etat.lus[s.id]) delete etat.lus[s.id]; else etat.lus[s.id] = new Date().toISOString(); sauver(); route(); } }));
+    if (s.qcm && questionsDu(s.qcm).length) {
+      var ent = etat.entrainements[s.qcm];
+      actions.appendChild(el('a', { class: 'btn', href: '#qcm-' + s.qcm, texte: 'Faire le QCM du module (' + questionsDu(s.qcm).length + ' questions)' }));
+      if (ent) actions.appendChild(el('span', { class: 'etat', texte: 'Meilleur score : ' + ent.meilleur + '/' + ent.total }));
+    }
+    wrap.appendChild(actions);
+    var pied = el('nav', { class: 'pied-section', 'aria-label': 'Modules voisins' });
+    pied.appendChild(idx > 0 ? el('a', { href: '#' + SECTIONS[idx - 1].id, texte: '← ' + SECTIONS[idx - 1].court }) : el('span'));
+    pied.appendChild(idx < SECTIONS.length - 1 ? el('a', { href: '#' + SECTIONS[idx + 1].id, texte: SECTIONS[idx + 1].court + ' →' }) : el('span'));
+    wrap.appendChild(pied);
+    vue.innerHTML = '';
+    vue.appendChild(wrap);
+  }
+
+  /* A1 puis A2 consécutifs : deux voies côte à côte */
+  function construireVoies(racine) {
+    var titres = Array.prototype.slice.call(racine.querySelectorAll('h3'));
+    var trouve = false;
+    titres.forEach(function (h) {
+      if (!/^A1\b/.test(h.textContent.trim()) || !h.parentNode) return;
+      var n = h.nextElementSibling, a2 = null;
+      while (n) { if (n.tagName === 'H3') { if (/^A2\b/.test(n.textContent.trim())) a2 = n; break; } if (n.tagName === 'H2') break; n = n.nextElementSibling; }
+      if (!a2) return;
+      trouve = true;
+      var bloc = el('div', { class: 'voies' + (etat.disposition === 'suite' ? ' a-la-suite' : '') });
+      var v1 = el('div', { class: 'voie a1' }), v2 = el('div', { class: 'voie a2' });
+      h.parentNode.insertBefore(bloc, h);
+      var c = h; while (c && c !== a2) { var s = c.nextElementSibling; v1.appendChild(c); c = s; }
+      c = a2;
+      do { var s2 = c.nextElementSibling; v2.appendChild(c); c = s2; } while (c && c.tagName !== 'H3' && c.tagName !== 'H2');
+      bloc.appendChild(v1); bloc.appendChild(v2);
+    });
+    if (trouve) {
+      var b = el('button', { class: 'btn discret bascule-voies', texte: etat.disposition === 'suite' ? 'Afficher Spring et Grails côte à côte' : 'Afficher Spring puis Grails à la suite', onclick: function () { etat.disposition = etat.disposition === 'suite' ? 'cote' : 'suite'; sauver(); route(); } });
+      var premier = racine.querySelector('.voies');
+      premier.parentNode.insertBefore(b, premier);
+    }
+  }
+
+  /* ---------- arbre de décision cliquable (séance 5.6) ---------- */
+  var ARBRE = [
+    { q: 'Le besoin touche-t-il l’extérieur de la base ?', d: 'e-mail, API, fichier, session HTTP', oui: ['Service Groovy', 'Autour de l’appel SQL, après le commit.'] },
+    { q: 'Est-ce une règle à garantir quel que soit l’auteur de l’écriture ?', d: 'y compris un script SQL de reprise', oui: ['Contrainte déclarative, sinon trigger', 'CHECK, FOREIGN KEY, UNIQUE d’abord ; trigger BEFORE pour refuser, AFTER pour tracer.'] },
+    { q: 'Faut-il plusieurs écritures liées et atomiques ?', d: 'numérotation, stock, concurrence', oui: ['Procédure stockée participante', 'Appelée par un service @Transactional, erreurs par SIGNAL.'] },
+    { q: 'Est-ce une lecture calculée, réutilisée en liste ?', d: 'totaux, rapport, recherche paginée', oui: ['Vue + domain class en lecture seule', 'Si un paramètre est imposé : procédure qui renvoie des lignes.'] },
+    { q: 'Est-ce une règle de calcul d’une valeur, partagée ?', d: 'montant, arrondi, conversion', oui: ['Fonction DETERMINISTIC', 'Réutilisée par les vues, les procédures et formula.'] }
+  ];
+  var ARBRE_SINON = ['GORM dans le service', 'Finder, where, criteria ou Data Service.'];
+  function monterArbre(noeud) {
+    var reponses = [];
+    function dessiner() {
+      noeud.innerHTML = '';
+      var issue = null;
+      var ol = el('ol');
+      ARBRE.forEach(function (e, i) {
+        var classe = 'q' + (i === reponses.length && !issue ? ' active' : '') + (i < reponses.length ? ' passee' : '');
+        var li = el('li', { class: classe }, [el('div', { class: 'question', texte: e.q }), el('div', { class: 'detail', texte: e.d })]);
+        if (i < reponses.length) li.appendChild(el('div', { class: 'detail', texte: 'Votre réponse : ' + (reponses[i] ? 'oui' : 'non') }));
+        if (i === reponses.length && !issue) {
+          li.appendChild(el('div', { class: 'choix' }, [
+            el('button', { class: 'btn', texte: 'Oui', onclick: function () { reponses.push(true); dessiner(); } }),
+            el('button', { class: 'btn secondaire', texte: 'Non', onclick: function () { reponses.push(false); dessiner(); } })
+          ]));
+        }
+        ol.appendChild(li);
+        if (reponses[i] === true && !issue) issue = e.oui;
+      });
+      if (!issue && reponses.length === ARBRE.length) issue = ARBRE_SINON;
+      // n'afficher que jusqu'à la question en cours
+      Array.prototype.slice.call(ol.children).forEach(function (li, i) { if (i > reponses.length || (issue && i >= reponses.length)) li.hidden = true; });
+      noeud.appendChild(el('p', { class: 'detail', texte: 'Pensez à un morceau de besoin précis, puis répondez aux questions dans l’ordre : le premier « oui » désigne l’objet.' }));
+      noeud.appendChild(ol);
+      if (issue) {
+        noeud.appendChild(el('div', { class: 'issue', role: 'status' }, [el('strong', { texte: issue[0] }), el('span', { texte: issue[1] })]));
+      }
+      if (reponses.length) noeud.appendChild(el('div', { class: 'actions' }, [el('button', { class: 'btn discret', texte: 'Recommencer avec un autre besoin', onclick: function () { reponses = []; dessiner(); } })]));
+    }
+    dessiner();
+  }
+  function vueArbre() {
+    vue.innerHTML = '<article class="contenu lecture"><h2>Arbre de décision</h2><p>L’outil de la séance 5.6 : où doit vivre un morceau de besoin, en Groovy ou dans MariaDB, et sous quelle forme ?</p><div data-arbre></div></article>';
+    monterArbre(vue.querySelector('[data-arbre]'));
+  }
+
+  /* ---------- QCM ---------- */
+  // session = { mode: 'entrainement'|'positionnement'|'bilan', module, ordre: [ids], options: {id: [indices]}, i, reponses: {id: indice} }
+  function nouvelleSession(mode, mod, ids) {
+    var opts = {};
+    ids.forEach(function (id) { var q = trouverQ(id); opts[id] = melange(q.options.map(function (_, k) { return k; })); });
+    return { mode: mode, module: mod || null, ordre: ids, options: opts, i: 0, reponses: {} };
+  }
+  function trouverQ(id) { for (var i = 0; i < QUESTIONS.length; i++) if (QUESTIONS[i].id === id) return QUESTIONS[i]; return null; }
+  var sessionEntrainement = null;
+
+  function titreSession(s) {
+    if (s.mode === 'positionnement') return 'Positionnement';
+    if (s.mode === 'bilan') return 'Bilan final';
+    return 'QCM — ' + nomModule(s.module);
+  }
+  function vueQuestion(s) {
+    var id = s.ordre[s.i], q = trouverQ(id), choisi = s.reponses[id];
+    var box = el('section', { class: 'quiz', 'aria-labelledby': 'enonce' });
+    var entete = el('div', { class: 'entete' }, [el('span', { texte: titreSession(s) }), el('span', { texte: 'Question ' + (s.i + 1) + ' sur ' + s.ordre.length })]);
+    box.appendChild(entete);
+    box.appendChild(el('div', { class: 'progression-quiz', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': s.ordre.length, 'aria-valuenow': s.i, html: '<span style="width:' + pct(s.i, s.ordre.length) + '%"></span>' }));
+    if (s.mode !== 'entrainement') box.appendChild(el('p', { class: 'vide', texte: nomModule(q.module) }));
+    box.appendChild(el('p', { class: 'enonce', id: 'enonce', html: enLigne(q.question) }));
+    var groupe = el('div', { class: 'options', role: 'radiogroup', 'aria-labelledby': 'enonce' });
+    s.options[id].forEach(function (k, rang) {
+      var b = el('button', { class: 'option', role: 'radio', 'aria-checked': choisi === k ? 'true' : 'false', onclick: function () { s.reponses[id] = k; persister(s); vueQuestion(s); } }, [
+        el('span', { class: 'lettre', texte: String.fromCharCode(65 + rang) }), el('span', { html: enLigne(q.options[k].texte) })
+      ]);
+      groupe.appendChild(b);
+    });
+    box.appendChild(groupe);
+    var dernier = s.i === s.ordre.length - 1;
+    var actions = el('div', { class: 'actions' });
+    if (s.i > 0) actions.appendChild(el('button', { class: 'btn discret', texte: 'Question précédente', onclick: function () { s.i--; persister(s); vueQuestion(s); } }));
+    actions.appendChild(el('button', { class: 'btn', disabled: choisi === undefined, texte: dernier ? 'Terminer et voir le résultat' : 'Question suivante', onclick: function () { if (dernier) terminer(s); else { s.i++; persister(s); vueQuestion(s); } } }));
+    if (s.mode !== 'entrainement') actions.appendChild(el('span', { class: 'etat', texte: 'Vos réponses sont gardées : vous pouvez reprendre plus tard.' }));
+    box.appendChild(actions);
+    vue.innerHTML = ''; vue.appendChild(box);
+    var premier = groupe.querySelector('[aria-checked="true"]') || groupe.querySelector('.option');
+    if (premier && document.activeElement && document.activeElement.classList.contains('option')) premier.focus();
+  }
+  function persister(s) { if (s.mode !== 'entrainement') { etat.enCours = s; sauver(); } }
+  function corriger(s) {
+    var parModule = {}, bonnes = 0;
+    s.ordre.forEach(function (id) {
+      var q = trouverQ(id), juste = q.options[s.reponses[id]] && q.options[s.reponses[id]].correcte;
+      parModule[q.module] = parModule[q.module] || { bonnes: 0, total: 0 };
+      parModule[q.module].total++;
+      if (juste) { parModule[q.module].bonnes++; bonnes++; }
+    });
+    return { date: new Date().toISOString(), score: bonnes, total: s.ordre.length, parModule: parModule, reponses: Object.assign({}, s.reponses), ordre: s.ordre.slice() };
+  }
+  function terminer(s) {
+    var r = corriger(s);
+    if (s.mode === 'entrainement') {
+      var prec = etat.entrainements[s.module];
+      if (s.ordre.length === questionsDu(s.module).length) {
+        etat.entrainements[s.module] = { meilleur: Math.max(r.score, prec ? prec.meilleur : 0), dernier: r.score, total: r.total, date: r.date };
+      }
+      sauver();
+      vueResultatEntrainement(s, r);
+    } else {
+      etat[s.mode] = r; etat.enCours = null; sauver();
+      location.hash = s.mode === 'bilan' ? 'bilan' : 'positionnement';
+      route();
+    }
+  }
+  function blocCorrections(ordre, reponses) {
+    var f = document.createDocumentFragment();
+    ordre.forEach(function (id) {
+      var q = trouverQ(id), choisi = q.options[reponses[id]], bonne = q.options.filter(function (o) { return o.correcte; })[0];
+      var juste = choisi && choisi.correcte;
+      f.appendChild(el('div', { class: 'correction ' + (juste ? 'juste' : 'faux') }, [
+        el('div', { class: 'verdict' }, [juste ? 'Juste' : 'À revoir', el('small', { texte: q.id })]),
+        el('p', { class: 'enonce-court', html: enLigne(q.question) }),
+        el('p', { class: 'reponse', html: 'Votre réponse : ' + (choisi ? enLigne(choisi.texte) : 'aucune') }),
+        juste ? null : el('p', { class: 'reponse', html: 'Bonne réponse : ' + enLigne(bonne.texte) }),
+        el('p', { class: 'justification', html: enLigne(q.justification) })
+      ]));
+    });
+    return f;
+  }
+  function vueResultatEntrainement(s, r) {
+    var box = el('section', { class: 'quiz' });
+    box.appendChild(el('p', { class: 'vide', texte: titreSession(s) }));
+    box.appendChild(el('div', { class: 'resultat-score', html: '<strong>' + r.score + '/' + r.total + '</strong><span>' + (r.score === r.total ? 'Module maîtrisé.' : r.score >= Math.ceil(r.total * 0.8) ? 'Acquis : revoyez les points ci-dessous.' : 'Pas encore acquis : relisez le module puis recommencez.') + '</span>' }));
+    var fausses = s.ordre.filter(function (id) { var q = trouverQ(id); return !(q.options[s.reponses[id]] || {}).correcte; });
+    var actions = el('div', { class: 'actions' });
+    if (fausses.length && fausses.length < s.ordre.length) actions.appendChild(el('button', { class: 'btn', texte: 'Refaire les ' + fausses.length + ' questions ratées', onclick: function () { sessionEntrainement = nouvelleSession('entrainement', s.module, fausses); vueQuestion(sessionEntrainement); } }));
+    actions.appendChild(el('button', { class: 'btn secondaire', texte: 'Refaire tout le QCM', onclick: function () { sessionEntrainement = nouvelleSession('entrainement', s.module, questionsDu(s.module).map(function (q) { return q.id; })); vueQuestion(sessionEntrainement); } }));
+    var sec = sectionDuModule(s.module);
+    if (sec) actions.appendChild(el('a', { class: 'btn discret', href: '#' + sec.id, texte: 'Revenir au module' }));
+    box.appendChild(actions);
+    box.appendChild(blocCorrections(s.ordre, s.reponses));
+    vue.innerHTML = ''; vue.appendChild(box); vue.focus();
+    construireSommaire(null);
+  }
+  function lancerEntrainement(mod) {
+    var ids = questionsDu(mod).map(function (q) { return q.id; });
+    if (!ids.length) { vue.innerHTML = '<p class="vide">Aucune question pour ce module.</p>'; return; }
+    sessionEntrainement = nouvelleSession('entrainement', mod, ids);
+    vueQuestion(sessionEntrainement);
+  }
+
+  function tableauModules(lignes) {
+    var t = '<div class="tableau"><table class="tableau-modules"><thead><tr><th>Module</th>' + lignes.entetes.map(function (h) { return '<th>' + h + '</th>'; }).join('') + '</tr></thead><tbody>';
+    ORDRE_MODULES.forEach(function (m) { t += '<tr><td>' + nomModule(m) + '</td>' + lignes.cellules(m).map(function (c) { return '<td class="nb">' + c + '</td>'; }).join('') + '</tr>'; });
+    return t + '</tbody></table></div>';
+  }
+  function cellule(r, m) { if (!r || !r.parModule[m]) return '—'; var x = r.parModule[m]; return x.bonnes + '/' + x.total + jauge(x.bonnes, x.total); }
+
+  function vueEvaluation(mode) {
+    var r = etat[mode], enCours = etat.enCours && etat.enCours.mode === mode ? etat.enCours : null;
+    var box = el('section', { class: 'quiz large' });
+    var titre = mode === 'positionnement' ? 'Positionnement' : 'Bilan final';
+    box.appendChild(el('h2', { texte: titre }));
+    if (enCours) {
+      box.appendChild(el('p', { texte: 'Vous en êtes à la question ' + (enCours.i + 1) + ' sur ' + enCours.ordre.length + '.' }));
+      box.appendChild(el('div', { class: 'actions' }, [
+        el('button', { class: 'btn', texte: 'Reprendre', onclick: function () { vueQuestion(etat.enCours); } }),
+        el('button', { class: 'btn discret', texte: 'Abandonner cette tentative', onclick: function () { etat.enCours = null; sauver(); route(); } })
+      ]));
+    }
+    if (!r && !enCours) {
+      box.appendChild(el('p', { texte: mode === 'positionnement'
+        ? 'Répondez aux 65 questions avant de commencer la formation. Vous verrez votre score par module, mais pas les corrections : elles vous attendent dans les QCM de chaque module et après le bilan final.'
+        : 'Répondez aux mêmes 65 questions à la fin de la formation, avec les options dans un autre ordre. Vous verrez votre progression module par module et toutes les corrections.' }));
+      if (mode === 'bilan' && !etat.positionnement) box.appendChild(el('div', { class: 'encart', texte: 'Vous n’avez pas passé le positionnement : le bilan ne pourra pas montrer votre progression.' }));
+      box.appendChild(el('p', { class: 'vide', texte: 'Comptez 30 à 45 minutes. Vous pouvez vous arrêter et reprendre plus tard sur ce navigateur.' }));
+      box.appendChild(el('div', { class: 'actions' }, [el('button', { class: 'btn', texte: mode === 'positionnement' ? 'Commencer le positionnement' : 'Commencer le bilan', onclick: function () {
+        etat.enCours = nouvelleSession(mode, null, QUESTIONS.map(function (q) { return q.id; })); sauver(); vueQuestion(etat.enCours);
+      } })]));
+    }
+    if (r) {
+      box.appendChild(el('div', { class: 'resultat-score', html: '<strong>' + r.score + '/' + r.total + '</strong><span>le ' + dateCourte(r.date) + '</span>' }));
+      if (mode === 'positionnement') {
+        box.insertAdjacentHTML('beforeend', tableauModules({ entetes: ['Score'], cellules: function (m) { return [cellule(r, m)]; } }));
+        box.appendChild(el('div', { class: 'encart info', texte: 'Les corrections ne sont pas affichées ici. Commencez par les modules où votre score est le plus bas.' }));
+      } else {
+        var p = etat.positionnement;
+        box.insertAdjacentHTML('beforeend', tableauModules({ entetes: ['Positionnement', 'Bilan', 'Progrès'], cellules: function (m) {
+          var a = p && p.parModule[m], b = r.parModule[m], d = a && b ? b.bonnes - a.bonnes : null;
+          return [cellule(p, m), cellule(r, m), d === null ? '—' : '<span class="' + (d > 0 ? 'delta-plus' : d < 0 ? 'delta-moins' : '') + '">' + (d > 0 ? '+' : '') + d + '</span>'];
+        } }));
+        var det = el('details', null, [el('summary', { texte: 'Voir toutes les corrections du bilan' })]);
+        det.appendChild(blocCorrections(r.ordre, r.reponses));
+        box.appendChild(det);
+      }
+      box.appendChild(el('div', { class: 'actions' }, [
+        el('a', { class: 'btn secondaire', href: '#progression', texte: 'Exporter mes résultats' }),
+        enCours ? null : el('button', { class: 'btn discret', texte: 'Repasser le ' + (mode === 'positionnement' ? 'positionnement' : 'bilan'), onclick: function () {
+          if (confirm('Une nouvelle tentative remplacera le résultat actuel. Continuer ?')) { etat.enCours = nouvelleSession(mode, null, QUESTIONS.map(function (q) { return q.id; })); sauver(); vueQuestion(etat.enCours); }
+        } })
+      ]));
+    }
+    vue.innerHTML = ''; vue.appendChild(box);
+  }
+
+  /* ---------- progression et export ---------- */
+  function texteBilan() {
+    var L = [];
+    L.push('# Résultats — formation Spring Boot → Grails 3.3');
+    L.push('');
+    L.push('- Stagiaire : ' + (etat.nom || '(nom non renseigné)'));
+    L.push('- Exporté le : ' + dateCourte(new Date().toISOString()));
+    L.push('- Positionnement : ' + (etat.positionnement ? etat.positionnement.score + '/' + etat.positionnement.total + ' le ' + dateCourte(etat.positionnement.date) : 'non passé'));
+    L.push('- Bilan final : ' + (etat.bilan ? etat.bilan.score + '/' + etat.bilan.total + ' le ' + dateCourte(etat.bilan.date) : 'non passé'));
+    L.push('- Modules lus : ' + SECTIONS.filter(function (s) { return etat.lus[s.id]; }).length + ' sur ' + SECTIONS.length);
+    L.push('');
+    L.push('| Module | Positionnement | Meilleur entraînement | Bilan |');
+    L.push('| --- | --- | --- | --- |');
+    ORDRE_MODULES.forEach(function (m) {
+      var f = function (r) { return r && r.parModule[m] ? r.parModule[m].bonnes + '/' + r.parModule[m].total : '—'; };
+      var e = etat.entrainements[m];
+      L.push('| ' + nomModule(m) + ' | ' + f(etat.positionnement) + ' | ' + (e ? e.meilleur + '/' + e.total : '—') + ' | ' + f(etat.bilan) + ' |');
+    });
+    L.push('');
+    L.push('<!-- données brutes : ' + JSON.stringify({ v: 1, positionnement: etat.positionnement && { date: etat.positionnement.date, reponses: etat.positionnement.reponses }, bilan: etat.bilan && { date: etat.bilan.date, reponses: etat.bilan.reponses } }) + ' -->');
+    return L.join('\n');
+  }
+  function vueProgression() {
+    var box = el('section', { class: 'large' });
+    box.appendChild(el('h2', { texte: 'Ma progression' }));
+    box.insertAdjacentHTML('beforeend', tableauModules({ entetes: ['Lu', 'Positionnement', 'Meilleur entraînement', 'Bilan', ''], cellules: function (m) {
+      var s = sectionDuModule(m), e = etat.entrainements[m];
+      return [s ? (etat.lus[s.id] ? 'oui' : 'non') : '—', cellule(etat.positionnement, m), e ? e.meilleur + '/' + e.total + jauge(e.meilleur, e.total) : '—', cellule(etat.bilan, m), '<a href="#qcm-' + m + '">S’entraîner</a>'];
+    } }));
+    box.appendChild(el('h3', { texte: 'Remettre mes résultats au formateur' }));
+    var champ = el('input', { type: 'text', id: 'nom', value: etat.nom || '', autocomplete: 'name', oninput: function (e) { etat.nom = e.target.value; sauver(); zone.value = texteBilan(); } });
+    box.appendChild(el('label', { class: 'champ', for: 'nom' }, [el('span', { texte: 'Votre nom, tel qu’il doit figurer sur le bilan' }), champ]));
+    var zone = el('textarea', { class: 'export', readonly: true, 'aria-label': 'Texte du bilan à remettre' });
+    zone.value = texteBilan();
+    var info = el('span', { class: 'etat', role: 'status' });
+    box.appendChild(el('div', { class: 'actions' }, [
+      el('button', { class: 'btn', texte: 'Télécharger le bilan (.md)', onclick: function () {
+        try {
+          var blob = new Blob([texteBilan()], { type: 'text/markdown;charset=utf-8' });
+          var a = el('a', { href: URL.createObjectURL(blob), download: 'bilan-grails-' + (etat.nom || 'stagiaire').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.md' });
+          document.body.appendChild(a); a.click(); a.remove();
+          info.textContent = 'Si aucun fichier n’est apparu, copiez le texte ci-dessous.';
+        } catch (e) { info.textContent = 'Téléchargement impossible ici : copiez le texte ci-dessous.'; }
+      } }),
+      el('button', { class: 'btn secondaire', texte: 'Copier le bilan', onclick: function () {
+        zone.select();
+        var ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) {}
+        if (navigator.clipboard && !ok) navigator.clipboard.writeText(zone.value).then(function () { info.textContent = 'Bilan copié.'; }, function () { info.textContent = 'Copie refusée par le navigateur : sélectionnez le texte et copiez-le.'; });
+        else info.textContent = ok ? 'Bilan copié.' : 'Sélectionnez le texte et copiez-le.';
+      } }),
+      info
+    ]));
+    box.appendChild(zone);
+    box.appendChild(el('h3', { texte: 'Repartir de zéro' }));
+    box.appendChild(el('p', { class: 'vide', texte: 'Efface vos lectures, scores, positionnement et bilan de ce navigateur.' }));
+    box.appendChild(el('button', { class: 'btn discret', texte: 'Effacer ma progression', onclick: function () {
+      if (confirm('Effacer toute votre progression sur ce navigateur ?')) { etat = { lus: {}, entrainements: {}, positionnement: null, bilan: null, nom: '', disposition: 'cote', enCours: null, derniere: null }; sauver(); route(); }
+    } }));
+    vue.innerHTML = ''; vue.appendChild(box);
+  }
+
+  /* ---------- routage par #jeton ---------- */
+  function route() {
+    var h = (location.hash || '').replace(/^#/, '') || 'accueil';
+    var courant = h;
+    document.querySelectorAll('.barre nav a').forEach(function (a) { a.setAttribute('aria-current', a.getAttribute('data-route') === h ? 'page' : 'false'); });
+    if (h === 'accueil') vueAccueil();
+    else if (h === 'positionnement' || h === 'bilan') vueEvaluation(h);
+    else if (h === 'progression') vueProgression();
+    else if (h === 'arbre') vueArbre();
+    else if (h.indexOf('qcm-') === 0) lancerEntrainement(h.slice(4));
+    else if (section(h)) vueSection(section(h));
+    else { vueAccueil(); courant = 'accueil'; }
+    construireSommaire(courant);
+    sommaire.classList.remove('ouvert'); document.getElementById('bouton-menu').setAttribute('aria-expanded', 'false');
+    window.scrollTo(0, 0);
+    vue.focus({ preventScroll: true });
+  }
+  document.getElementById('bouton-menu').addEventListener('click', function () {
+    var o = sommaire.classList.toggle('ouvert'); this.setAttribute('aria-expanded', o ? 'true' : 'false');
+  });
+  window.addEventListener('hashchange', route);
+  route();
+})();
+</script>
+</body>
+</html>

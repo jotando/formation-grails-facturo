@@ -44,7 +44,8 @@ Base : `jdbc:mariadb://localhost:3306/facturo`, utilisateur `facturo` / `facturo
 | `rendus/_modele/` | Modèles `RENDU.md` et `JOURNAL_IA.md` |
 | `rendus/<login>/exNN/` | **Vos** rendus |
 | `qcm/` | Banque de questions (JSON source, export Moodle GIFT) |
-| `outils/` | Réinitialisation de la base, tests SQL, analyse Git, génération du QCM |
+| `outils/` | Réinitialisation de la base, tests SQL, analyse Git, génération du QCM et du site |
+| `site/index.html` | Site de la formation (cours, QCM, positionnement et bilan), publié sur GitHub Pages |
 
 ## Avant de commencer les exercices
 
